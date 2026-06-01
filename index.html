@@ -119,9 +119,9 @@
   .chartcard .ch .up{font-size:12px;font-weight:600;color:#5c7a00;background:var(--accent-soft);padding:4px 9px;border-radius:10px;}
   .chartcard .big{font-family:'Unbounded';font-weight:600;font-size:32px;letter-spacing:-1px;margin:6px 0 2px;}
   .chartcard .bs{font-size:12px;color:var(--muted);}
-  .segbar{display:flex;background:var(--paper);border-radius:14px;padding:4px;margin-bottom:18px;overflow-x:auto;scrollbar-width:none;}
+  .segbar{display:flex;gap:6px;background:var(--paper);border-radius:14px;padding:4px;margin-bottom:18px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
   .segbar::-webkit-scrollbar{display:none;}
-  .segbar button{border:none;background:none;padding:9px 14px;border-radius:11px;font-family:'Onest';font-weight:600;font-size:13px;color:var(--muted);cursor:pointer;white-space:nowrap;}
+  .segbar button{flex:0 0 auto;border:none;background:none;padding:9px 14px;border-radius:11px;font-family:'Onest';font-weight:600;font-size:13px;color:var(--muted);cursor:pointer;white-space:nowrap;}
   .segbar button.on{background:var(--ink);color:#fff;}
   .goalcard{background:var(--ink);color:#fff;border-radius:28px;padding:22px;margin-bottom:18px;}
   .goalcard .gt{font-size:12px;color:#b9b8ac;font-weight:500;display:flex;align-items:center;gap:6px;}
@@ -219,7 +219,7 @@ var Store={
   async set(k,v){ mem[k]=v; try{localStorage.setItem(k,v);}catch(e){} if(CS){await csSet(k,v);} }
 };
 
-var KEY='fm4m_v2';
+var KEY='fm4m_v3';
 var METHODS=['Без метода','Круговая','Стандарт 2+1+2','Тяни-толкай','Дроп-сеты','Отдых-пауза'];
 var LIB=[
 {n:'Приседания со штангой',a:['присед','приседания','squat']},
@@ -280,21 +280,13 @@ function fmtDate(iso){var mo=['янв','фев','мар','апр','мая','ию
 function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
 function seed(){
+  // Чистый старт: ничего нет, человек заполняет всё сам.
+  // Шаблоны блоков Брина (PRESETS) и библиотека упражнений (LIB) доступны всегда.
   return {
-    goal:{startW:68,goalW:58,deadline:dOff(63)},
-    measurements:[{date:dOff(-14),weight:66.5,chest:94,waist:74,hips:99.5},{date:dOff(-7),weight:65.3,chest:93,waist:72.5,hips:99},{date:dOff(0),weight:64.2,chest:92,waist:71,hips:98}],
+    goal:null,
+    measurements:[],
     photos:[], templates:[], customExercises:[],
-    workouts:[
-      {id:uid(),date:dOff(0),status:'done',name:'Спина, грудь, руки',block:'Блок 2',method:'Круговая',phase:'20 повт',comment:'',exercises:[
-        {id:uid(),name:'Тяга штанги в наклоне',note:'',sets:[{w:35,r:20},{w:40,r:20}]},
-        {id:uid(),name:'Жим штанги лёжа',note:'',sets:[{w:25,r:20},{w:30,r:20}]}]},
-      {id:uid(),date:dOff(-3),status:'done',name:'Ноги и плечи',block:'Блок 1',method:'Тяни-толкай',phase:'20 повт',comment:'',exercises:[
-        {id:uid(),name:'Приседания со штангой',note:'',sets:[{w:40,r:20},{w:45,r:20}]}]},
-      {id:uid(),date:dOff(-6),status:'done',name:'Спина, грудь, руки',block:'Блок 2',method:'Круговая',phase:'20 повт',comment:'',exercises:[
-        {id:uid(),name:'Тяга штанги в наклоне',note:'',sets:[{w:30,r:20},{w:35,r:20}]}]},
-      {id:uid(),date:dOff(2),status:'planned',name:'Ноги и плечи',block:'Блок 3',method:'Круговая',phase:'20 повт',comment:'',exercises:[
-        {id:uid(),name:'Жим платформы ногами',note:'',sets:[]},{id:uid(),name:'Мёртвая тяга',note:'',sets:[]}]}
-    ]
+    workouts:[]
   };
 }
 async function load(){var raw=await Store.get(KEY); if(raw){try{state=JSON.parse(raw);}catch(e){state=seed();await save();}} else {state=seed();await save();} if(!state.customExercises)state.customExercises=[]; if(!state.templates)state.templates=[];}
@@ -311,7 +303,7 @@ function lastEntry(name,exclId){
   var top=e.sets.filter(function(s){return s.w===maxw;}).sort(function(a,b){return b.r-a.r;})[0];
   return {date:w.date,w:maxw,r:top.r,count:e.sets.length};
 }
-function weeksLeft(){var d=new Date(state.goal.deadline+'T00:00:00');return Math.max(0,Math.round((d-new Date())/(7*864e5)));}
+function weeksLeft(){if(!state.goal||!state.goal.deadline)return 0;var d=new Date(state.goal.deadline+'T00:00:00');return Math.max(0,Math.round((d-new Date())/(7*864e5)));}
 
 var I={
   back:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>',
@@ -344,7 +336,7 @@ function viewHome(){
       +'<div class="date">'+fmtDate(w.date)+(w.block?' · '+esc(w.block):'')+'</div><div class="wname">'+esc(w.name)+'</div>'
       +'<div class="meta">'+tagsHtml(w)+'<span class="ctag gray">'+w.exercises.length+' упр.</span></div></div>';
   }).join(''):'<div class="empty">'+I.bolt+'<p>Пока нет тренировок.<br>Нажми «Начать тренировку» внизу.</p></div>';
-  return '<div class="view"><div class="topbar"><div><div class="hello">С возвращением 👋</div><div class="title-xl">Дневник</div></div><div class="avatar" onclick="go(\'settings\')">'+I.gear+'</div></div>'
+  return '<div class="view"><div class="topbar"><div><div class="hello">Привет 👋</div><div class="title-xl">Таня тренит</div></div><div class="avatar" onclick="go(\'settings\')">'+I.gear+'</div></div>'
     +'<div class="stat-row"><div class="stat lime"><div class="lab">'+I.bolt+' На неделе</div><div class="num">'+thisWeek+'</div><div class="sub">тренировки</div></div>'
     +'<div class="stat"><div class="lab">'+I.trophy+' Упражнений</div><div class="num">'+exNames.size+'</div><div class="sub">в дневнике</div></div></div>'
     +'<div class="section-h"><h2>История</h2></div>'+list+'<div style="height:60px"></div></div>'
@@ -480,9 +472,16 @@ function viewBody(){
   var ms=state.measurements.slice().sort(function(a,b){return a.date<b.date?1:-1;});
   var cur=ms[0],prev=ms[1];
   function delta(k,u){if(!cur)return'';if(!prev)return'<div class="md flat">— первая запись</div>';var dd=Math.round((cur[k]-prev[k])*10)/10;if(dd===0)return'<div class="md flat">→ без изменений</div>';var cls=dd<0?'down':'up';return'<div class="md '+cls+'">'+(dd<0?'↓':'↑')+' '+Math.abs(dd)+' '+u+'</div>';}
-  var curW=cur?cur.weight:state.goal.startW;
-  var prog=Math.max(0,Math.min(100,Math.round((state.goal.startW-curW)/(state.goal.startW-state.goal.goalW)*100)));
-  var goalBlock='<div class="goalcard"><div class="gt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg> Цель · фитнес-модель за 4 месяца</div><div class="gbig">Осталось <span>'+weeksLeft()+' нед.</span> до цели</div><div class="gsub">Вес: '+curW+' кг сейчас → цель '+state.goal.goalW+' кг · старт '+state.goal.startW+' кг</div><div class="gprog"><i style="width:'+prog+'%"></i></div><div class="glabels"><span>'+state.goal.startW+' кг</span><span>'+prog+'%</span><span>'+state.goal.goalW+' кг</span></div></div>';
+  var goalBlock;
+  if(state.goal && state.goal.startW && state.goal.goalW){
+    var curW=cur?cur.weight:state.goal.startW;
+    var denom=(state.goal.startW-state.goal.goalW)||1;
+    var prog=Math.max(0,Math.min(100,Math.round((state.goal.startW-curW)/denom*100)));
+    var wl=state.goal.deadline?('<div class="gbig">Осталось <span>'+weeksLeft()+' нед.</span> до цели</div>'):'<div class="gbig">Цель по весу</div>';
+    goalBlock='<div class="goalcard"><div class="gt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg> Моя цель</div>'+wl+'<div class="gsub">Вес: '+curW+' кг сейчас → цель '+state.goal.goalW+' кг · старт '+state.goal.startW+' кг</div><div class="gprog"><i style="width:'+prog+'%"></i></div><div class="glabels"><span>'+state.goal.startW+' кг</span><span>'+prog+'%</span><span>'+state.goal.goalW+' кг</span></div></div>';
+  } else {
+    goalBlock='<div class="goalcard"><div class="gt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg> Цель пока не задана</div><div class="gbig">Поставь цель по весу</div><div class="gsub">Укажи старт, цель и дату — увидишь обратный отсчёт и прогресс.</div><button onclick="go(\'settings\')" style="margin-top:14px;width:100%;border:none;background:var(--accent);color:var(--accent-deep);border-radius:13px;padding:12px;font-family:Onest;font-weight:700;cursor:pointer;">Задать цель</button></div>';
+  }
   var mgrid=cur?'<div class="mgrid"><div class="mcard"><div class="ml">Вес</div><div class="mv">'+cur.weight+' <small>кг</small></div>'+delta('weight','кг')+'</div><div class="mcard"><div class="ml">Грудь</div><div class="mv">'+cur.chest+' <small>см</small></div>'+delta('chest','см')+'</div><div class="mcard"><div class="ml">Талия</div><div class="mv">'+cur.waist+' <small>см</small></div>'+delta('waist','см')+'</div><div class="mcard"><div class="ml">Бёдра</div><div class="mv">'+cur.hips+' <small>см</small></div>'+delta('hips','см')+'</div></div>':'<div class="empty">'+I.bolt+'<p>Сделай первый замер.</p></div>';
   var phs=state.photos&&state.photos.length?state.photos.slice().reverse().map(function(p){return '<div class="photo" style="background-image:url('+p.data+')"><span>'+esc(p.label)+'</span></div>';}).join(''):'';
   return '<div class="view"><div class="topbar"><div><div class="hello">Замеры · раз в неделю</div><div class="title-xl">Тело</div></div></div>'+goalBlock
@@ -518,8 +517,8 @@ function viewProgress(){
 function viewSettings(){
   return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'home\')">'+I.back+'</button><div><div class="bt">Настройки</div><div class="bd">Цель и резервная копия</div></div></div>'
     +'<div class="section-h"><h2>Цель</h2></div>'
-    +'<div class="twocol"><div class="formgroup"><label>Старт, кг</label><input class="field" id="g-start" type="number" value="'+state.goal.startW+'"></div><div class="formgroup"><label>Цель, кг</label><input class="field" id="g-goal" type="number" value="'+state.goal.goalW+'"></div></div>'
-    +'<div class="formgroup"><label>Дата цели</label><input class="field" id="g-deadline" type="date" value="'+state.goal.deadline+'"></div>'
+    +'<div class="twocol"><div class="formgroup"><label>Старт, кг</label><input class="field" id="g-start" type="number" placeholder="напр. 68" value="'+(state.goal&&state.goal.startW?state.goal.startW:'')+'"></div><div class="formgroup"><label>Цель, кг</label><input class="field" id="g-goal" type="number" placeholder="напр. 58" value="'+(state.goal&&state.goal.goalW?state.goal.goalW:'')+'"></div></div>'
+    +'<div class="formgroup"><label>Дата цели</label><input class="field" id="g-deadline" type="date" value="'+(state.goal&&state.goal.deadline?state.goal.deadline:'')+'"></div>'
     +'<button class="savebtn" onclick="saveGoal()">Сохранить цель</button>'
     +'<div class="section-h" style="margin-top:26px"><h2>Резервная копия</h2></div>'
     +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Скачай файл со всеми данными на всякий случай. Файл можно загрузить обратно в любой момент.</p>'
@@ -580,7 +579,7 @@ async function delSet(wid,exId,i){var w=findWorkout(wid);var e=w.exercises.find(
 async function setWComment(id,v){var w=findWorkout(id);w.comment=v;await save();}
 async function setExNote(wid,exId,v){var w=findWorkout(wid);var e=w.exercises.find(function(x){return x.id===exId;});e.note=v;await save();}
 async function saveMeasure(){var m={date:todayISO(),weight:parseFloat(document.getElementById('m-w').value)||0,chest:parseFloat(document.getElementById('m-c').value)||0,waist:parseFloat(document.getElementById('m-t').value)||0,hips:parseFloat(document.getElementById('m-h').value)||0};state.measurements.push(m);await save();go('body');}
-async function saveGoal(){state.goal.startW=parseFloat(document.getElementById('g-start').value)||state.goal.startW;state.goal.goalW=parseFloat(document.getElementById('g-goal').value)||state.goal.goalW;state.goal.deadline=document.getElementById('g-deadline').value||state.goal.deadline;await save();go('body');}
+async function saveGoal(){if(!state.goal)state.goal={};state.goal.startW=parseFloat(document.getElementById('g-start').value)||state.goal.startW||0;state.goal.goalW=parseFloat(document.getElementById('g-goal').value)||state.goal.goalW||0;state.goal.deadline=document.getElementById('g-deadline').value||state.goal.deadline||'';await save();go('body');}
 function addPhoto(input){var f=input.files&&input.files[0];if(!f)return;var img=new Image();var rd=new FileReader();rd.onload=function(){img.onload=function(){var c=document.createElement('canvas');var max=420;var sc=Math.min(1,max/Math.max(img.width,img.height));c.width=img.width*sc;c.height=img.height*sc;c.getContext('2d').drawImage(img,0,0,c.width,c.height);var data=c.toDataURL('image/jpeg',0.7);if(!state.photos)state.photos=[];state.photos.push({label:'Нед '+(state.photos.length+1),data:data});save().then(render);};img.src=rd.result;};rd.readAsDataURL(f);}
 function exportData(){try{var blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='fm4m-backup.json';document.body.appendChild(a);a.click();a.remove();}catch(e){alert('Не удалось выгрузить');}}
 function importData(input){var f=input.files&&input.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){try{var data=JSON.parse(rd.result);if(!data.workouts){alert('Файл не похож на резервную копию');return;}if(!confirm('Заменить текущие данные данными из файла?'))return;state=data;if(!state.customExercises)state.customExercises=[];if(!state.templates)state.templates=[];save().then(function(){go('home');});}catch(e){alert('Не удалось прочитать файл');}};rd.readAsText(f);}
