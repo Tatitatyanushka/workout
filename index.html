@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Таня тренит</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script async src="https://telegram.org/js/telegram-web-app.js" onload="if(window.tgReady)tgReady()"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Onest:wght@400;500;600;700&display=swap&subset=cyrillic,cyrillic-ext,latin" rel="stylesheet">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Onest:wght@400;500;600;700&display=swap&subset=cyrillic,cyrillic-ext,latin">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Onest:wght@400;500;600;700&display=swap&subset=cyrillic,cyrillic-ext,latin"></noscript>
 <style>
   :root{--ink:#15150F;--paper:#F4F3ED;--card:#FFFFFF;--muted:#8C8B81;--line:#E7E5DC;--accent:#C7F23D;--accent-deep:#3E4D00;--accent-soft:#EEF8C9;--shadow:0 8px 30px rgba(30,30,15,0.06);--shadow-lift:0 12px 40px rgba(30,30,15,0.12);}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -226,6 +227,7 @@
   .savebtn{width:100%;border:none;background:var(--ink);color:#fff;font-family:'Onest';font-weight:600;font-size:16px;padding:17px;border-radius:18px;cursor:pointer;margin-top:8px;transition:transform .15s ease;}
   .savebtn:active{transform:scale(0.98);}
   .savebtn.alt{background:var(--card);color:var(--ink);box-shadow:var(--shadow);margin-top:12px;}
+  .savebtn svg{width:18px;height:18px;flex:0 0 auto;}
   .skipbtn{width:100%;text-align:center;background:none;border:none;font-family:'Onest';font-weight:500;font-size:14px;color:var(--muted);padding:14px;margin-top:6px;cursor:pointer;}
   .twocol{display:flex;gap:12px;} .twocol .formgroup{flex:1;}
   .exrow{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border-radius:16px;padding:14px 16px;margin-bottom:9px;box-shadow:var(--shadow);cursor:pointer;transition:transform .12s ease;}
@@ -253,24 +255,94 @@
   .planbanner{background:var(--accent-soft);border-radius:18px;padding:15px 17px;margin-bottom:16px;}
   .planbanner .pt{font-size:13px;font-weight:600;color:var(--accent-deep);}
   .planbanner button{margin-top:11px;width:100%;border:none;background:var(--ink);color:#fff;border-radius:13px;padding:12px;font-family:'Onest';font-weight:600;cursor:pointer;}
+  .minical{background:var(--card);border-radius:24px;padding:16px 16px 14px;box-shadow:var(--shadow);cursor:pointer;margin-bottom:6px;transition:transform .15s ease;}
+  .minical:active{transform:scale(0.99);}
+  .minical-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .minical-h .mm{font-family:'Unbounded';font-weight:500;font-size:15px;}
+  .minical-h .mopen{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--muted);font-weight:500;}
+  .minical-h .mopen svg{width:15px;height:15px;stroke:var(--muted);}
+  .minical-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+  .minical-grid .mdow{font-size:10px;color:var(--muted);text-align:center;font-weight:600;padding-bottom:2px;}
+  .mcell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;}
+  .mcell.blank{visibility:hidden;}
+  .mcell span{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:12px;font-weight:500;color:var(--ink);}
+  .mcell.done span{background:var(--accent);color:var(--accent-deep);font-weight:600;}
+  .mcell.plan span{border:1.5px solid var(--ink);font-weight:600;}
+  .mcell.today span{outline:2px solid var(--accent);outline-offset:1px;}
+  .catbar{display:flex;gap:7px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;}
+  .catbar::-webkit-scrollbar{display:none;}
+  .catbar button{flex:0 0 auto;border:none;background:var(--card);box-shadow:var(--shadow);border-radius:13px;padding:10px 14px;font-family:'Onest';font-weight:600;font-size:13px;color:#56554c;cursor:pointer;display:flex;align-items:center;gap:6px;}
+  .catbar button.on{background:var(--ink);color:#fff;}
+  .catbar button svg{width:15px;height:15px;}
+  .vidcard{display:flex;align-items:center;gap:13px;background:var(--card);border-radius:18px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;text-decoration:none;color:inherit;position:relative;transition:transform .12s ease;}
+  .vidcard:active{transform:scale(0.98);}
+  .vidcard .vthumb{width:46px;height:46px;border-radius:12px;background:#FBE9EC;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .vidcard .vthumb svg{width:22px;height:22px;fill:#E0394B;}
+  .vidcard .vt{flex:1;min-width:0;}
+  .vidcard .vt .vn{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:30px;}
+  .vidcard .vt .vu{font-size:11px;color:var(--muted);margin-top:2px;}
+  .vidcard .vdel{position:absolute;right:12px;top:12px;width:26px;height:26px;border-radius:8px;background:var(--paper);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .vidcard .vdel svg{width:14px;height:14px;stroke:#b06a6a;}
+  .addvidbtn{width:100%;border:1px dashed var(--line);background:transparent;border-radius:16px;padding:13px;font-family:'Onest';font-weight:600;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:10px;}
+  .addvidbtn svg{width:16px;height:16px;stroke:var(--muted);}
+  .cathead{font-family:'Unbounded';font-weight:500;font-size:16px;margin:22px 2px 14px;display:flex;align-items:center;gap:8px;}
+  .cathead svg{width:18px;height:18px;stroke:var(--ink);}
+  .ctr-row{display:flex;gap:9px;margin-bottom:18px;}
+  .ctr{flex:1;background:var(--card);border-radius:18px;padding:13px 8px;text-align:center;box-shadow:var(--shadow);}
+  .ctr.lime{background:var(--accent);}
+  .ctr .ctr-l{font-size:11px;font-weight:600;color:var(--muted);}
+  .ctr.lime .ctr-l{color:var(--accent-deep);}
+  .ctr .ctr-n{font-family:'Unbounded';font-weight:600;font-size:25px;line-height:1.2;letter-spacing:-0.5px;margin-top:2px;}
+  .ctr.lime .ctr-n{color:var(--accent-deep);}
+  .homecal{background:var(--card);border-radius:24px;padding:18px 16px 16px;box-shadow:var(--shadow);cursor:pointer;margin-bottom:6px;transition:transform .15s ease;}
+  .homecal:active{transform:scale(0.99);}
+  .homecal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .homecal-h .hcm{font-family:'Unbounded';font-weight:500;font-size:16px;}
+  .homecal-h .hcnav{display:flex;gap:6px;}
+  .homecal-h .hcnav button{width:30px;height:30px;border-radius:9px;border:none;background:var(--paper);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .homecal-h .hcnav svg{width:15px;height:15px;stroke:var(--ink);}
+  .homecal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+  .homecal-grid .hdow{font-size:11px;color:var(--muted);text-align:center;font-weight:600;padding-bottom:3px;}
+  .hcell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;}
+  .hcell.blank{visibility:hidden;}
+  .hcell span{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:500;color:var(--ink);}
+  .hcell.done span{background:var(--accent);color:var(--accent-deep);font-weight:600;}
+  .hcell.today span{outline:2px solid var(--accent);outline-offset:-2px;font-weight:600;}
+  .homecal-leg{display:flex;gap:16px;margin-top:14px;padding:0 2px;}
+  .homecal-leg span{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+  .homecal-leg .d1{width:13px;height:13px;border-radius:50%;background:var(--accent);display:inline-block;}
+  .homecal-leg .d2{width:13px;height:13px;border-radius:50%;outline:2px solid var(--accent);outline-offset:-2px;display:inline-block;}
 </style>
 </head>
 <body>
 <div class="phone">
-  <div class="screen" id="screen"></div>
+  <div class="screen" id="screen"><div style="padding:40px 20px;text-align:center;color:#8C8B81;font-family:system-ui,sans-serif;font-size:14px;">Загрузка…</div></div>
   <div class="restbar" id="restbar"><div class="rt" id="rt">01:30</div><div class="rbtns"><button onclick="addRest(30)">+30с</button><button onclick="stopRest()">Стоп</button></div></div>
   <div class="nav" id="nav"></div>
 </div>
 <script>
-var TG=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
-var CS=TG&&TG.CloudStorage?TG.CloudStorage:null;
-try{ if(TG){ TG.ready(); TG.expand(); } }catch(e){}
+var TG=null, CS=null;
+function tgReady(){
+  try{
+    TG=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
+    CS=TG&&TG.CloudStorage?TG.CloudStorage:null;
+    if(TG){ TG.ready(); TG.expand(); }
+  }catch(e){}
+}
+tgReady();
+window.tgReady=tgReady;
 var mem={};
-function csGet(k){return new Promise(function(res){try{CS.getItem(k,function(err,val){res(err?null:val);});}catch(e){res(null);}});}
-function csSet(k,v){return new Promise(function(res){try{CS.setItem(k,v,function(){res();});}catch(e){res();}});}
+// облачные операции с тайм-аутом: если Telegram не ответил за 1.5с — не ждём, идём дальше
+function csGet(k){return new Promise(function(res){var done=false;var to=setTimeout(function(){if(!done){done=true;res(null);}},1500);try{CS.getItem(k,function(err,val){if(done)return;done=true;clearTimeout(to);res(err?null:val);});}catch(e){if(!done){done=true;clearTimeout(to);res(null);}}});}
+function csSet(k,v){return new Promise(function(res){var done=false;var to=setTimeout(function(){if(!done){done=true;res();}},1500);try{CS.setItem(k,v,function(){if(done)return;done=true;clearTimeout(to);res();});}catch(e){if(!done){done=true;clearTimeout(to);res();}}});}
 var Store={
-  async get(k){ if(CS){var v=await csGet(k); if(v) return v;} try{var l=localStorage.getItem(k); if(l!=null) return l;}catch(e){} return mem[k]!=null?mem[k]:null; },
-  async set(k,v){ mem[k]=v; try{localStorage.setItem(k,v);}catch(e){} if(CS){await csSet(k,v);} }
+  async get(k){
+    try{var l=localStorage.getItem(k); if(l!=null) return l;}catch(e){}
+    if(mem[k]!=null) return mem[k];
+    if(CS){var v=await csGet(k); if(v) return v;}
+    return null;
+  },
+  async set(k,v){ mem[k]=v; try{localStorage.setItem(k,v);}catch(e){} if(CS){csSet(k,v);} }
 };
 var KEY='fm4m_v4';
 var METHODS=['Без метода','Круговая','Стандарт 2+1+2','Тяни-толкай','Дроп-сеты','Отдых-пауза'];
@@ -335,10 +407,11 @@ function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;'
 function fmtMS(s){var m=Math.floor(s/60),x=s%60;return (m<10?'0':'')+m+':'+(x<10?'0':'')+x;}
 
 function seed(){
-  return { profile:null, goal:null, measurements:[], photos:[], templates:[], customExercises:[], workouts:[] };
+  return { profile:null, goal:null, measurements:[], photos:[], templates:[], customExercises:[], workouts:[], videos:{zal:[],home:[],noaxial:[]} };
 }
 async function load(){var raw=await Store.get(KEY); if(raw){try{state=JSON.parse(raw);}catch(e){state=seed();await save();}} else {state=seed();await save();}
-  if(!state.customExercises)state.customExercises=[]; if(!state.templates)state.templates=[]; if(!state.measurements)state.measurements=[]; if(!state.photos)state.photos=[]; if(!state.workouts)state.workouts=[];}
+  if(!state.customExercises)state.customExercises=[]; if(!state.templates)state.templates=[]; if(!state.measurements)state.measurements=[]; if(!state.photos)state.photos=[]; if(!state.workouts)state.workouts=[];
+  if(!state.videos)state.videos={zal:[],home:[],noaxial:[]}; if(!state.videos.zal)state.videos.zal=[]; if(!state.videos.home)state.videos.home=[]; if(!state.videos.noaxial)state.videos.noaxial=[];}
 async function save(){await Store.set(KEY,JSON.stringify(state));}
 
 function workoutsDone(){return state.workouts.filter(function(w){return w.status!=='planned';}).sort(function(a,b){return a.date<b.date?1:-1;});}
@@ -373,6 +446,8 @@ var I={
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 6"/></svg>',
   pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 20h4l11-11-4-4L4 16v4z"/><path d="M13 5l4 4"/></svg>',
   fwd:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4m8-4v4"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M10 9l5 3-5 3V9z" fill="currentColor"/></svg>',
   gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10l1.4 1.4m0-13.4l-1.4 1.4m-10 10l-1.4 1.4"/></svg>'
 };
 
@@ -382,15 +457,32 @@ function exDone(e){return e.sets.length>0 && e.sets.every(function(s){return s.d
 function navBar(){
   function b(id,lbl,svg){return '<button class="'+(route.name===id?'on':'')+'" onclick="go(\''+id+'\')">'+svg+lbl+'</button>';}
   return b('home','Главная','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M3 11l9-8 9 8M5 9v11h14V9"/></svg>')
-    +b('calendar','Календарь','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4m8-4v4"/></svg>')
+    +b('start','Тренировки','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 8.5v7M4 10v3M17.5 8.5v7M20 10v3M6.5 12h11"/></svg>')
     +b('body','Тело','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><circle cx="12" cy="5" r="2.5"/><path d="M12 8v8m0-5l-5 2m5-2l5 2m-5 5l-3 4m3-4l3 4"/></svg>')
     +b('progress','Прогресс','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M4 19V5M4 19h16M8 16v-5m4 5V8m4 8v-7"/></svg>');
 }
 
+function homeMonthCalendar(){
+  var first=new Date(calY,calM,1); var startDow=(first.getDay()+6)%7;
+  var days=new Date(calY,calM+1,0).getDate();
+  var done={};
+  state.workouts.forEach(function(w){var d=new Date(w.date+'T00:00:00');if(d.getFullYear()===calY&&d.getMonth()===calM&&w.status!=='planned')done[d.getDate()]=1;});
+  var n2=new Date(); var todayD=(n2.getFullYear()===calY&&n2.getMonth()===calM)?n2.getDate():-1;
+  var cells='';for(var i=0;i<startDow;i++)cells+='<div class="hcell blank"></div>';
+  for(var d=1;d<=days;d++){var cls='hcell'+(done[d]?' done':'')+(d===todayD?' today':'');cells+='<div class="'+cls+'"><span>'+d+'</span></div>';}
+  var dow=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(function(x){return '<div class="hdow">'+x+'</div>';}).join('');
+  var monthN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  return '<div class="homecal" onclick="go(\'calendar\')">'
+    +'<div class="homecal-h"><span class="hcm">'+monthN[calM]+' '+calY+'</span><span class="hcnav"><button onclick="event.stopPropagation();calShift(-1)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg></button><button onclick="event.stopPropagation();calShift(1)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button></span></div>'
+    +'<div class="homecal-grid">'+dow+cells+'</div>'
+    +'<div class="homecal-leg"><span><i class="d1"></i>тренировка</span><span><i class="d2"></i>сегодня</span></div></div>';
+}
 function viewHome(){
   var ws=workoutsDone();
-  var thisWeek=ws.filter(function(w){return (Date.now()-new Date(w.date+'T00:00:00'))<7*864e5;}).length;
-  var exNames=new Set();state.workouts.forEach(function(w){w.exercises.forEach(function(e){exNames.add(e.name);});});
+  var now2=new Date(); var curY=now2.getFullYear(), curM=now2.getMonth();
+  var cntWeek=ws.filter(function(w){return (Date.now()-new Date(w.date+'T00:00:00'))<7*864e5;}).length;
+  var cntMonth=ws.filter(function(w){var d=new Date(w.date+'T00:00:00');return d.getFullYear()===curY&&d.getMonth()===curM;}).length;
+  var cntYear=ws.filter(function(w){return new Date(w.date+'T00:00:00').getFullYear()===curY;}).length;
   var name=state.profile&&state.profile.name?state.profile.name:'';
   var histList=ws.length?ws.map(function(w){
     return '<div class="wcard" onclick="openWorkout(\''+w.id+'\')"><button class="cardtrash" onclick="event.stopPropagation();delWorkout(\''+w.id+'\')">'+I.trash+'</button>'
@@ -401,12 +493,19 @@ function viewHome(){
     ? '<button class="disclosure'+(ui.histOpen?' open':'')+'" onclick="toggleHist()"><span class="dl">История</span><span class="dc">'+ws.length+' трен. '+I.chev+'</span></button>'+(ui.histOpen?histList:'')
     : '<div class="section-h"><h2>История</h2></div>'+histList;
   return '<div class="view"><div class="topbar"><div><div class="hello">Привет 👋 Татьянушка желает классной тренировки</div><div class="title-xl">'+(name?esc(name):'Таня тренит')+'</div></div><button class="gearbtn" onclick="go(\'settings\')">'+I.gear+'</button></div>'
-    +'<div class="stat-row"><div class="stat lime"><div class="lab">'+I.bolt+' На неделе</div><div class="num">'+thisWeek+'</div><div class="sub">тренировки</div></div>'
-    +'<div class="stat"><div class="lab">'+I.trophy+' Упражнений</div><div class="num">'+exNames.size+'</div><div class="sub">в дневнике</div></div></div>'
+    +'<div class="section-h"><h2>Твой прогресс</h2></div>'
+    +'<div class="ctr-row">'
+      +'<div class="ctr lime"><div class="ctr-l">Неделя</div><div class="ctr-n">'+cntWeek+'</div></div>'
+      +'<div class="ctr"><div class="ctr-l">Месяц</div><div class="ctr-n">'+cntMonth+'</div></div>'
+      +'<div class="ctr"><div class="ctr-l">Год</div><div class="ctr-n">'+cntYear+'</div></div>'
+    +'</div>'
+    +homeMonthCalendar()
     +histBlock+'<div style="height:60px"></div></div>'
     +'<div class="fab"><button onclick="go(\'start\')"><span class="dot"></span> Выбрать тренировку</button></div>';
 }
 
+var TRAIN_CAT='zal';
+function setCat(c){TRAIN_CAT=c;render();}
 function viewStart(){
   function presetCard(t){
     var exlist=t.ex.slice(0,3).join(', ')+(t.ex.length>3?' и ещё '+(t.ex.length-3):'');
@@ -420,21 +519,66 @@ function viewStart(){
       +'<div class="tex">'+esc(exlist)+'</div>'
       +'<div class="tplbtns"><button class="gobtn" onclick="startTemplate(\'u:'+t.id+'\')">Начать сейчас</button><button class="plbtn" onclick="go(\'plan\',{tpl:\'u:'+t.id+'\'})">Запланировать</button></div></div>';
   }
-  var progDesc='<button class="disclosure'+(ui.progOpen?' open':'')+'" onclick="toggleProg()"><span class="dl">Подробнее о программе</span>'+I.chev+'</button>'
-    +(ui.progOpen?'<div class="progtext"><div class="ptt">Программа на 1 месяц ФМ4М</div>'
-      +'<p>Тренировки 4 раза в неделю в формате Fullbody. Мышцы прокачиваются 1.5–2 раза в неделю под разными углами, с воздействием на разные мышечные волокна — сложнее проходит адаптация, быстрее восстановление.</p>'
-      +'<p style="margin-top:7px;"><b>График:</b> ПН — Блок 1, ВТ — Блок 2, СР — отдых, ЧТ — Блок 3, ПТ — отдых, СБ — Блок 4, ВС — отдых.</p>'
-      +'<p style="margin-top:7px;">Упражнения выполняем кругами. Максимум 5 кругов. На первой тренировке 1–2 круга, затем каждую тренировку прибавляем. Минимум 3 круга.</p>'
-      +'<div class="phpills"><span>Недели 1–2 · 20 повт</span><span>Недели 3–4 · 15 повт</span></div>'
-      +'<p style="margin-top:8px;font-style:italic;color:#8C8B81;">При снижении количества повторений — увеличиваем вес.</p></div>':'');
-  var mine=state.templates.length?'<div class="section-h" style="margin-top:8px"><h2>Мои шаблоны</h2></div>'+state.templates.map(mineCard).join(''):'';
-  return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'home\')">'+I.back+'</button><div><div class="bt">Выбрать тренировку</div><div class="bd">Создай свою или выбери шаблон</div></div></div>'
-    +'<button class="savebtn alt" style="margin-top:0;display:flex;align-items:center;justify-content:center;gap:8px" onclick="newWorkout()">'+I.plusd+' Создать тренировку</button>'
-    +'<div class="section-h" style="margin-top:20px"><h2>Шаблоны · ФМ4М</h2></div>'
-    +progDesc
-    +PRESETS.map(presetCard).join('')
-    +mine+'<div style="height:30px"></div></div>';
+  function host(u){try{return new URL(u).hostname.replace('www.','');}catch(e){return 'ссылка';}}
+  function vidCard(v,cat,i){
+    return '<a class="vidcard" href="'+esc(v.url)+'" target="_blank" rel="noopener"><div class="vthumb"><svg viewBox="0 0 24 24"><path d="M10 8l6 4-6 4V8z"/></svg></div><div class="vt"><div class="vn">'+esc(v.title)+'</div><div class="vu">'+esc(host(v.url))+'</div></div><button class="vdel" onclick="event.preventDefault();event.stopPropagation();delVideo(\''+cat+'\','+i+')">'+I.trash+'</button></a>';
+  }
+  function videos(cat){
+    var arr=(state.videos&&state.videos[cat])||[];
+    return arr.map(function(v,i){return vidCard(v,cat,i);}).join('')
+      +'<button class="addvidbtn" onclick="go(\'addvideo\',{cat:\''+cat+'\'})">'+I.plusd+' Добавить видео с YouTube</button>';
+  }
+  var dumbbell='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 8.5v7M4 10v3M17.5 8.5v7M20 10v3M6.5 12h11"/></svg>';
+  var homeIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M3 11l9-8 9 8M5 9v11h14V9"/></svg>';
+  var cats=[['zal','Зал',dumbbell],['home','Дома',homeIcon]];
+  var catbar='<div class="catbar">'+cats.map(function(c){return '<button class="'+(TRAIN_CAT===c[0]?'on':'')+'" onclick="setCat(\''+c[0]+'\')">'+c[2]+c[1]+'</button>';}).join('')+'</div>';
+  function mineFor(cat){
+    var list=state.templates.filter(function(t){return (t.cat||'zal')===cat;});
+    return list.length?'<div class="section-h" style="margin-top:8px"><h2>Мои шаблоны</h2></div>'+list.map(mineCard).join(''):'';
+  }
+  var body='';
+  if(TRAIN_CAT==='zal'){
+    var programInner=ui.progOpen
+      ?'<div class="progtext"><div class="ptt">Программа на 1 месяц ФМ4М</div>'
+        +'<p>Тренировки 4 раза в неделю в формате Fullbody. Мышцы прокачиваются 1.5–2 раза в неделю под разными углами, с воздействием на разные мышечные волокна — сложнее проходит адаптация, быстрее восстановление.</p>'
+        +'<p style="margin-top:7px;"><b>График:</b> ПН — Блок 1, ВТ — Блок 2, СР — отдых, ЧТ — Блок 3, ПТ — отдых, СБ — Блок 4, ВС — отдых.</p>'
+        +'<p style="margin-top:7px;">Упражнения выполняем кругами. Максимум 5 кругов. На первой тренировке 1–2 круга, затем каждую тренировку прибавляем. Минимум 3 круга.</p>'
+        +'<div class="phpills"><span>Недели 1–2 · 20 повт</span><span>Недели 3–4 · 15 повт</span></div>'
+        +'<p style="margin-top:8px;font-style:italic;color:#8C8B81;">При снижении количества повторений — увеличиваем вес.</p></div>'
+        +PRESETS.map(presetCard).join('')
+      :'';
+    body='<button class="disclosure'+(ui.progOpen?' open':'')+'" onclick="toggleProg()"><span class="dl">Программа на 1 месяц ФМ4М</span><span class="dc">'+(ui.progOpen?'свернуть':'4 блока')+' '+I.chev+'</span></button>'
+      +programInner
+      +mineFor('zal')
+      +'<div class="cathead">'+I.play+' Видео для зала</div>'+videos('zal');
+  } else {
+    body='<div class="cathead">'+homeIcon+' Тренировки дома</div>'
+      +'<div style="font-size:12px;color:var(--muted);margin:4px 2px 14px;">Для тех, кто занимается дома без тренажёров: сохранённые тренировки и видео-занятия.</div>'
+      +mineFor('home')
+      +'<div class="cathead">'+I.play+' Видео для дома</div>'+videos('home');
+  }
+  return '<div class="view"><div class="topbar"><div><div class="hello">Программы и видео</div><div class="title-xl">Тренировки</div></div></div>'
+    +'<button class="savebtn alt" style="margin-top:0;margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:8px" onclick="newWorkout()">'+I.plusd+' Создать тренировку</button>'
+    +catbar+body+'<div style="height:60px"></div></div>';
 }
+function viewAddVideo(){
+  var cat=route.params.cat||'zal';
+  var names={zal:'Зал',home:'Дома',noaxial:'Без осевой нагрузки'};
+  return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'start\')">'+I.back+'</button><div><div class="bt">Добавить видео</div><div class="bd">Раздел: '+names[cat]+'</div></div></div>'
+    +'<div class="formgroup"><label>Название</label><input class="field" id="v-title" placeholder="Напр.: Кардио дома 20 минут"></div>'
+    +'<div class="formgroup"><label>Ссылка на YouTube</label><input class="field" id="v-url" type="url" inputmode="url" placeholder="https://youtube.com/..."></div>'
+    +'<button class="savebtn" onclick="saveVideo(\''+cat+'\')">Добавить</button><div style="height:20px"></div></div>';
+}
+async function saveVideo(cat){
+  var title=document.getElementById('v-title').value.trim();
+  var url=document.getElementById('v-url').value.trim();
+  if(!title||!url){alert('Заполни название и ссылку');return;}
+  if(!/^https?:\/\//i.test(url)){alert('Ссылка должна начинаться с https://');return;}
+  if(!state.videos[cat])state.videos[cat]=[];
+  state.videos[cat].push({title:title,url:url});
+  await save(); TRAIN_CAT=cat; go('start');
+}
+async function delVideo(cat,i){ if(!confirm('Удалить это видео?'))return; state.videos[cat].splice(i,1); await save(); render(); }
 
 function getTpl(pid){var t=pid.slice(0,2);var id=pid.slice(2);return t==='p:'?PRESETS.find(function(x){return x.id===id;}):state.templates.find(function(x){return x.id===id;});}
 function tplExArray(t){return t.ex||[];}
@@ -699,7 +843,7 @@ function render(){
     case 'newWorkout':v=viewNewWorkout();break; case 'workout':v=viewWorkout();break;
     case 'newExercise':v=viewNewExercise();break; case 'exercise':v=viewExercise();break;
     case 'calendar':v=viewCalendar();break; case 'body':v=viewBody();break; case 'newMeasure':v=viewNewMeasure();break;
-    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; default:v=viewHome();
+    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; default:v=viewHome();
   }
   document.getElementById('screen').innerHTML=v||'';
   document.getElementById('nav').innerHTML=navBar();
@@ -735,9 +879,17 @@ async function confirmPlan(pid){
   state.workouts.push(w); await save(); calY=new Date(date+'T00:00:00').getFullYear();calM=new Date(date+'T00:00:00').getMonth(); go('calendar');
 }
 async function completeWorkout(id){var w=findWorkout(id);w.status='done';w.date=todayISO();await save();render();}
-async function saveAsTemplate(id){
-  var w=findWorkout(id); var t={id:uid(),name:w.block||w.name,sub:w.name,method:w.method,phase:w.phase,ex:w.exercises.map(function(e){return e.name;})};
-  state.templates.push(t); await save(); alert('Шаблон «'+t.name+'» сохранён в «Выбрать тренировку».');
+function saveAsTemplate(id){ go('saveTpl',{id:id}); }
+function viewSaveTpl(){
+  var w=findWorkout(route.params.id); if(!w){route={name:'home',params:{}};return viewHome();}
+  return '<div class="view"><div class="bhead"><button class="bback" onclick="openWorkout(\''+w.id+'\')">'+I.back+'</button><div><div class="bt">Сохранить как шаблон</div><div class="bd">'+esc(w.name)+'</div></div></div>'
+    +'<p style="font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:18px;">В какой раздел сохранить шаблон, чтобы потом быстро его найти?</p>'
+    +'<button class="savebtn" style="margin-bottom:12px" onclick="doSaveTemplate(\''+w.id+'\',\'zal\')">Сохранить в «Зал»</button>'
+    +'<button class="savebtn alt" onclick="doSaveTemplate(\''+w.id+'\',\'home\')">Сохранить в «Дома»</button><div style="height:20px"></div></div>';
+}
+async function doSaveTemplate(id,cat){
+  var w=findWorkout(id); var t={id:uid(),cat:cat,name:w.block||w.name,sub:w.name,method:w.method,phase:w.phase,ex:w.exercises.map(function(e){return e.name;})};
+  state.templates.push(t); await save(); TRAIN_CAT=cat; alert('Шаблон «'+t.name+'» сохранён в раздел «'+(cat==='zal'?'Зал':'Дома')+'».'); go('start');
 }
 async function delTemplate(id){ if(!confirm('Удалить этот шаблон?'))return; state.templates=state.templates.filter(function(t){return t.id!==id;}); await save(); render(); }
 async function delWorkout(id){ if(!confirm('Удалить эту тренировку из истории? Действие необратимо.'))return; state.workouts=state.workouts.filter(function(w){return w.id!==id;}); await save(); render(); }
@@ -815,7 +967,11 @@ function startRest(sec){restRem=sec;showRest();if(restInt)clearInterval(restInt)
 function addRest(s){restRem+=s;showRest();}
 function stopRest(){if(restInt)clearInterval(restInt);restInt=null;document.getElementById('restbar').classList.remove('on');}
 
-(async function(){await load(); if(!state.onboarded){route={name:'survey',params:{from:'onboard'}};} render();})();
+(async function(){
+  try{ await load(); }catch(e){ if(!state) state=seed(); }
+  try{ if(!state.onboarded){route={name:'survey',params:{from:'onboard'}};} render(); }
+  catch(e){ try{ state=state||seed(); route={name:'home',params:{}}; render(); }catch(e2){} }
+})();
 </script>
 </body>
 </html>
