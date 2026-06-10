@@ -221,8 +221,11 @@
   .day .db.rest{background:var(--paper);color:var(--muted);font-family:'Onest';font-weight:500;font-size:15px;}
   .formgroup{margin-bottom:16px;}
   .formgroup label{display:block;font-size:13px;font-weight:600;color:#56554c;margin-bottom:8px;}
-  .field{width:100%;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:15px 16px;font-family:'Onest';font-size:15px;font-weight:500;outline:none;color:var(--ink);box-shadow:var(--shadow);}
+  .field{width:100%;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:15px 16px;font-family:'Onest';font-size:15px;font-weight:500;outline:none;color:var(--ink);box-shadow:var(--shadow);-webkit-appearance:none;appearance:none;}
   .field:focus{border-color:var(--ink);}
+  input.field[type=date]{display:block;min-width:0;max-width:100%;}
+  input.field[type=date]::-webkit-date-and-time-value{text-align:left;}
+  input.field[type=date]::-webkit-calendar-picker-indicator{margin:0;padding:0;}
   select.field{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2315150F' stroke-width='2.4'><path d='M2 5l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 16px center;padding-right:42px;cursor:pointer;}
   .savebtn{width:100%;border:none;background:var(--ink);color:#fff;font-family:'Onest';font-weight:600;font-size:16px;padding:17px;border-radius:18px;cursor:pointer;margin-top:8px;transition:transform .15s ease;}
   .savebtn:active{transform:scale(0.98);}
@@ -308,10 +311,20 @@
   .hcell span{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:500;color:var(--ink);}
   .hcell.done span{background:var(--accent);color:var(--accent-deep);font-weight:600;}
   .hcell.today span{outline:2px solid var(--accent);outline-offset:-2px;font-weight:600;}
+  .hcell.plan span{border:1.8px solid var(--ink);font-weight:600;}
   .homecal-leg{display:flex;gap:16px;margin-top:14px;padding:0 2px;}
   .homecal-leg span{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
   .homecal-leg .d1{width:13px;height:13px;border-radius:50%;background:var(--accent);display:inline-block;}
   .homecal-leg .d2{width:13px;height:13px;border-radius:50%;outline:2px solid var(--accent);outline-offset:-2px;display:inline-block;}
+  .homecal-leg .d3{width:13px;height:13px;border-radius:50%;border:1.8px solid var(--ink);display:inline-block;}
+  .activebar{background:var(--ink);color:#fff;border-radius:20px;padding:16px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .activebar .ab-t{font-size:11px;color:var(--accent);font-weight:600;display:flex;align-items:center;gap:6px;}
+  .activebar .ab-t:before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  .activebar .ab-n{font-family:'Unbounded';font-weight:500;font-size:16px;margin-top:4px;}
+  .activebar .ab-btns{display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
+  .activebar .ab-go{border:none;background:var(--accent);color:var(--accent-deep);border-radius:11px;padding:9px 14px;font-family:'Onest';font-weight:600;font-size:13px;cursor:pointer;}
+  .activebar .ab-fin{border:none;background:#2c2c22;color:#b9b8ac;border-radius:11px;padding:7px 14px;font-family:'Onest';font-weight:600;font-size:12px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -336,13 +349,9 @@ var mem={};
 function csGet(k){return new Promise(function(res){var done=false;var to=setTimeout(function(){if(!done){done=true;res(null);}},1500);try{CS.getItem(k,function(err,val){if(done)return;done=true;clearTimeout(to);res(err?null:val);});}catch(e){if(!done){done=true;clearTimeout(to);res(null);}}});}
 function csSet(k,v){return new Promise(function(res){var done=false;var to=setTimeout(function(){if(!done){done=true;res();}},1500);try{CS.setItem(k,v,function(){if(done)return;done=true;clearTimeout(to);res();});}catch(e){if(!done){done=true;clearTimeout(to);res();}}});}
 var Store={
-  async get(k){
-    try{var l=localStorage.getItem(k); if(l!=null) return l;}catch(e){}
-    if(mem[k]!=null) return mem[k];
-    if(CS){var v=await csGet(k); if(v) return v;}
-    return null;
-  },
-  async set(k,v){ mem[k]=v; try{localStorage.setItem(k,v);}catch(e){} if(CS){csSet(k,v);} }
+  getLocal:function(k){ try{var l=localStorage.getItem(k); if(l!=null) return l;}catch(e){} return (mem[k]!=null?mem[k]:null); },
+  getCloud:async function(k){ if(CS){var v=await csGet(k); if(v) return v;} return null; },
+  setBoth:function(k,v){ mem[k]=v; try{localStorage.setItem(k,v);}catch(e){} if(CS){csSet(k,v);} }
 };
 var KEY='fm4m_v4';
 var METHODS=['Без метода','Круговая','Стандарт 2+1+2','Тяни-толкай','Дроп-сеты','Отдых-пауза'];
@@ -409,12 +418,31 @@ function fmtMS(s){var m=Math.floor(s/60),x=s%60;return (m<10?'0':'')+m+':'+(x<10
 function seed(){
   return { profile:null, goal:null, measurements:[], photos:[], templates:[], customExercises:[], workouts:[], videos:{zal:[],home:[],noaxial:[]} };
 }
-async function load(){var raw=await Store.get(KEY); if(raw){try{state=JSON.parse(raw);}catch(e){state=seed();await save();}} else {state=seed();await save();}
+function parseState(raw){ if(!raw) return null; try{ return JSON.parse(raw); }catch(e){ return null; } }
+function stamp(s){ return (s && typeof s.updatedAt==='number') ? s.updatedAt : 0; }
+async function load(){
+  var localRaw=Store.getLocal(KEY);
+  var cloudRaw=await Store.getCloud(KEY);
+  var localS=parseState(localRaw), cloudS=parseState(cloudRaw);
+  if(localS && cloudS){
+    // обе версии есть — берём более свежую по метке времени
+    state = (stamp(cloudS) > stamp(localS)) ? cloudS : localS;
+  } else {
+    state = localS || cloudS || seed();
+  }
+  // подтягиваем выбранную версию на оба хранилища, чтобы они сошлись
+  if(localS || cloudS){
+    if(!state.updatedAt) state.updatedAt=Date.now();
+    Store.setBoth(KEY, JSON.stringify(state));
+  } else {
+    await save();
+  }
   if(!state.customExercises)state.customExercises=[]; if(!state.templates)state.templates=[]; if(!state.measurements)state.measurements=[]; if(!state.photos)state.photos=[]; if(!state.workouts)state.workouts=[];
   if(!state.videos)state.videos={zal:[],home:[],noaxial:[]}; if(!state.videos.zal)state.videos.zal=[]; if(!state.videos.home)state.videos.home=[]; if(!state.videos.noaxial)state.videos.noaxial=[];}
-async function save(){await Store.set(KEY,JSON.stringify(state));}
+async function save(){ state.updatedAt=Date.now(); Store.setBoth(KEY, JSON.stringify(state)); }
 
 function workoutsDone(){return state.workouts.filter(function(w){return w.status!=='planned';}).sort(function(a,b){return a.date<b.date?1:-1;});}
+function activeWorkout(){return state.workouts.filter(function(w){return w.status!=='planned'&&!w.finished&&w.date===todayISO();}).sort(function(a,b){return a.id<b.id?1:-1;})[0]||null;}
 function findWorkout(id){return state.workouts.find(function(w){return w.id===id;});}
 function isCustom(name){return state.customExercises.indexOf(name)>=0 || !LIB.some(function(l){return l.n===name;});}
 function bestSet(name){var best=null,bd=null;state.workouts.forEach(function(w){w.exercises.forEach(function(e){if(e.name===name){e.sets.forEach(function(s){if(!best||s.w>best.w||(s.w===best.w&&s.r>best.r)){best={w:s.w,r:s.r};bd=w.date;}});}});});return best?{w:best.w,r:best.r,date:bd}:null;}
@@ -425,6 +453,15 @@ function lastEntry(name,exclId){
   var maxw=Math.max.apply(null,e.sets.map(function(s){return s.w;}));
   var top=e.sets.filter(function(s){return s.w===maxw;}).sort(function(a,b){return b.r-a.r;})[0];
   return {date:w.date,w:maxw,r:top.r,count:e.sets.length};
+}
+function lastExNote(name,exclId){
+  var c=state.workouts.filter(function(w){return w.id!==exclId;}).sort(function(a,b){return a.date<b.date?1:-1;});
+  for(var i=0;i<c.length;i++){var e=c[i].exercises.find(function(x){return x.name===name&&x.note&&x.note.trim();});if(e)return e.note;}
+  return '';
+}
+function lastWorkoutNote(name,block,exclId){
+  var c=state.workouts.filter(function(w){return w.id!==exclId&&w.comment&&w.comment.trim()&&(w.name===name||(block&&w.block===block));}).sort(function(a,b){return a.date<b.date?1:-1;});
+  return c.length?c[0].comment:'';
 }
 function weeksLeft(){if(!state.goal||!state.goal.deadline)return 0;var d=new Date(state.goal.deadline+'T00:00:00');return Math.max(0,Math.round((d-new Date())/(7*864e5)));}
 function bmiCalc(){var p=state.profile;if(!p||!p.height)return null;var w=(state.measurements.length?state.measurements.slice().sort(function(a,b){return a.date<b.date?1:-1;})[0].weight:(state.goal&&state.goal.startW));if(!w)return null;var h=p.height/100;var v=w/(h*h);return Math.round(v*10)/10;}
@@ -465,22 +502,24 @@ function navBar(){
 function homeMonthCalendar(){
   var first=new Date(calY,calM,1); var startDow=(first.getDay()+6)%7;
   var days=new Date(calY,calM+1,0).getDate();
-  var done={};
-  state.workouts.forEach(function(w){var d=new Date(w.date+'T00:00:00');if(d.getFullYear()===calY&&d.getMonth()===calM&&w.status!=='planned')done[d.getDate()]=1;});
+  var done={},plan={};
+  state.workouts.forEach(function(w){var d=new Date(w.date+'T00:00:00');if(d.getFullYear()===calY&&d.getMonth()===calM){if(w.status==='planned'){if(!done[d.getDate()])plan[d.getDate()]=1;}else done[d.getDate()]=1;}});
   var n2=new Date(); var todayD=(n2.getFullYear()===calY&&n2.getMonth()===calM)?n2.getDate():-1;
   var cells='';for(var i=0;i<startDow;i++)cells+='<div class="hcell blank"></div>';
-  for(var d=1;d<=days;d++){var cls='hcell'+(done[d]?' done':'')+(d===todayD?' today':'');cells+='<div class="'+cls+'"><span>'+d+'</span></div>';}
+  for(var d=1;d<=days;d++){var cls='hcell'+(done[d]?' done':(plan[d]?' plan':''))+(d===todayD?' today':'');cells+='<div class="'+cls+'"><span>'+d+'</span></div>';}
   var dow=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(function(x){return '<div class="hdow">'+x+'</div>';}).join('');
   var monthN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   return '<div class="homecal" onclick="go(\'calendar\')">'
     +'<div class="homecal-h"><span class="hcm">'+monthN[calM]+' '+calY+'</span><span class="hcnav"><button onclick="event.stopPropagation();calShift(-1)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg></button><button onclick="event.stopPropagation();calShift(1)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button></span></div>'
     +'<div class="homecal-grid">'+dow+cells+'</div>'
-    +'<div class="homecal-leg"><span><i class="d1"></i>тренировка</span><span><i class="d2"></i>сегодня</span></div></div>';
+    +'<div class="homecal-leg"><span><i class="d1"></i>выполнено</span><span><i class="d3"></i>план</span><span><i class="d2"></i>сегодня</span></div></div>';
 }
 function viewHome(){
   var ws=workoutsDone();
   var now2=new Date(); var curY=now2.getFullYear(), curM=now2.getMonth();
-  var cntWeek=ws.filter(function(w){return (Date.now()-new Date(w.date+'T00:00:00'))<7*864e5;}).length;
+  var monday=new Date(now2); monday.setHours(0,0,0,0); monday.setDate(now2.getDate()-((now2.getDay()+6)%7));
+  var sunday=new Date(monday); sunday.setDate(monday.getDate()+7);
+  var cntWeek=ws.filter(function(w){var d=new Date(w.date+'T00:00:00');return d>=monday&&d<sunday;}).length;
   var cntMonth=ws.filter(function(w){var d=new Date(w.date+'T00:00:00');return d.getFullYear()===curY&&d.getMonth()===curM;}).length;
   var cntYear=ws.filter(function(w){return new Date(w.date+'T00:00:00').getFullYear()===curY;}).length;
   var name=state.profile&&state.profile.name?state.profile.name:'';
@@ -493,6 +532,7 @@ function viewHome(){
     ? '<button class="disclosure'+(ui.histOpen?' open':'')+'" onclick="toggleHist()"><span class="dl">История</span><span class="dc">'+ws.length+' трен. '+I.chev+'</span></button>'+(ui.histOpen?histList:'')
     : '<div class="section-h"><h2>История</h2></div>'+histList;
   return '<div class="view"><div class="topbar"><div><div class="hello">Привет 👋 Татьянушка желает классной тренировки</div><div class="title-xl">'+(name?esc(name):'Таня тренит')+'</div></div><button class="gearbtn" onclick="go(\'settings\')">'+I.gear+'</button></div>'
+    +(function(){var aw=activeWorkout();if(!aw)return '';return '<div class="activebar"><div class="ab-l"><div class="ab-t">Идёт тренировка</div><div class="ab-n">'+esc(aw.name)+'</div></div><div class="ab-btns"><button class="ab-go" onclick="openWorkout(\''+aw.id+'\')">Продолжить</button><button class="ab-fin" onclick="finishWorkout(\''+aw.id+'\')">Завершить</button></div></div>';})()
     +'<div class="section-h"><h2>Твой прогресс</h2></div>'
     +'<div class="ctr-row">'
       +'<div class="ctr lime"><div class="ctr-l">Неделя</div><div class="ctr-n">'+cntWeek+'</div></div>'
@@ -627,7 +667,7 @@ function viewWorkout(){
     +timerBlock
     +'<button class="disclosure" onclick="saveAsTemplate(\''+w.id+'\')" style="margin-bottom:13px"><span class="dl" style="font-size:14px">Сохранить как шаблон</span>'+I.plusd+'</button>'
     +(exs||'<div class="empty">'+I.bolt+'<p>Добавь первое упражнение.</p></div>')
-    +'<div class="comment"><div class="cl">'+I.note+' Комментарий к тренировке</div><textarea placeholder="Заметка о тренировке…" onchange="setWComment(\''+w.id+'\',this.value)">'+esc(w.comment)+'</textarea></div>'
+    +'<div class="comment"><div class="cl">'+I.note+' Комментарий к тренировке</div><textarea placeholder="Заметка о тренировке…" onchange="setWComment(\''+w.id+'\',this.value)">'+esc(w.comment||lastWorkoutNote(w.name,w.block,w.id))+'</textarea></div>'
     +'<div style="height:60px"></div></div>'
     +'<div class="fab"><button onclick="go(\'newExercise\',{id:\''+w.id+'\'})"><span class="dot"></span> Добавить упражнение</button></div>';
 }
@@ -668,7 +708,10 @@ function viewExercise(){
     return '<div class="setrow"><div class="check'+(s.done?' on':'')+'" onclick="toggleSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.check+'</div><div class="idx">'+(i+1)+'</div><div class="vals"><span class="w">'+s.w+'</span><span class="x">кг ×</span><span class="r">'+s.r+'</span></div>'+(isBest?'<span class="best">рекорд</span>':'')
       +'<button class="del" onclick="editSet('+i+')">'+I.pencil+'</button><button class="del" onclick="delSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.trash+'</button></div>';
   }).join('');
-  var pre=le?(' value="'+le.w+'"'):''; var preR=le?(' value="'+le.r+'"'):'';
+  var lastCur = e.sets.length ? e.sets[e.sets.length-1] : null;
+  var prefW = lastCur ? lastCur.w : (le ? le.w : null);
+  var prefR = lastCur ? lastCur.r : (le ? le.r : null);
+  var pre = (prefW!=null)?(' value="'+prefW+'"'):''; var preR = (prefR!=null)?(' value="'+prefR+'"'):'';
   var total=w.exercises.length;
   var navInfo=(total>1)?('<div class="exnav">'
     +'<button class="exnavb" '+(ei>0?'onclick="swipeExercise(-1)"':'disabled')+'>'+I.back+'</button>'
@@ -684,7 +727,7 @@ function viewExercise(){
     +'<div class="addset"><input id="in-w" type="number" inputmode="decimal" placeholder="кг"'+pre+'><span class="mult">×</span><input id="in-r" type="number" inputmode="numeric" placeholder="повт"'+preR+'><button onclick="addSet(\''+w.id+'\',\''+e.id+'\')">'+I.plus+'</button></div>'
     +'<button class="resttoggle" onclick="toggleRestPresets()">'+I.clock+' Таймер отдыха</button>'
     +'<div class="restpresets" id="restpresets"><button onclick="startRest(30)">0:30</button><button onclick="startRest(60)">1:00</button><button onclick="startRest(90)">1:30</button><button onclick="startRest(120)">2:00</button><button onclick="startRest(180)">3:00</button></div>'
-    +'<div class="comment"><div class="cl">'+I.note+' Комментарий к упражнению</div><textarea placeholder="Заметка об упражнении…" onchange="setExNote(\''+w.id+'\',\''+e.id+'\',this.value)">'+esc(e.note)+'</textarea></div>'
+    +'<div class="comment"><div class="cl">'+I.note+' Комментарий к упражнению</div><textarea placeholder="Заметка об упражнении…" onchange="setExNote(\''+w.id+'\',\''+e.id+'\',this.value)">'+esc(e.note||lastExNote(e.name,w.id))+'</textarea></div>'
     +'<div style="height:30px"></div></div>';
 }
 function editSet(i){ui.editSet=i;render();}
@@ -721,7 +764,7 @@ function viewCalendar(){
   var dow=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(function(x){return '<div class="dow">'+x+'</div>';}).join('');
   var monthN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   var upcoming=state.workouts.filter(function(w){return w.status==='planned'&&w.date>=todayISO();}).sort(function(a,b){return a.date<b.date?-1:1;});
-  var upHtml=upcoming.length?upcoming.map(function(w){return '<div class="wcard" onclick="openWorkout(\''+w.id+'\')"><div class="arrow">'+I.arrow+'</div><div class="date">'+fmtDate(w.date)+' · запланировано</div><div class="wname">'+esc(w.name)+'</div><div class="meta">'+tagsHtml(w)+'<span class="ctag plan">план</span></div></div>';}).join(''):'<div class="empty" style="padding:22px"><p>Нет запланированных тренировок.<br>Добавь из «Выбрать тренировку».</p></div>';
+  var upHtml=upcoming.length?upcoming.map(function(w){return '<div class="wcard" onclick="openWorkout(\''+w.id+'\')"><button class="cardtrash" onclick="event.stopPropagation();delWorkout(\''+w.id+'\')">'+I.trash+'</button><div class="date">'+fmtDate(w.date)+' · запланировано</div><div class="wname">'+esc(w.name)+'</div><div class="meta">'+tagsHtml(w)+'<span class="ctag plan">план</span></div></div>';}).join(''):'<div class="empty" style="padding:22px"><p>Нет запланированных тренировок.<br>Добавь из «Выбрать тренировку».</p></div>';
   return '<div class="view"><div class="topbar"><div><div class="hello">Расписание</div><div class="title-xl">Календарь</div></div></div>'
     +'<div class="calcard"><div class="calhead"><div class="cm">'+monthN[calM]+' '+calY+'</div><div class="cnav"><button onclick="calShift(-1)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg></button><button onclick="calShift(1)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button></div></div>'
     +'<div class="calgrid">'+dow+cells+'</div><div class="callegend"><div><span class="d1"></span> Тренировка была</div><div><span class="d2"></span> Запланирована</div></div></div>'
@@ -863,22 +906,23 @@ function newWorkout(){go('newWorkout');}
 async function saveWorkout(){
   var name=document.getElementById('f-name').value.trim(); if(!name){alert('Введи название');return;}
   var when=document.getElementById('f-when').value;
-  var w={id:uid(),date:document.getElementById('f-date').value||todayISO(),status:when==='planned'?'planned':'done',name:name,block:document.getElementById('f-block').value.trim(),method:document.getElementById('f-method').value,phase:document.getElementById('f-phase').value.trim(),comment:'',exercises:[],timerStart:null,timerEnd:null,timerAccum:0};
+  var w={id:uid(),date:document.getElementById('f-date').value||todayISO(),status:when==='planned'?'planned':'done',name:name,block:document.getElementById('f-block').value.trim(),method:document.getElementById('f-method').value,phase:document.getElementById('f-phase').value.trim(),comment:'',exercises:[],timerStart:null,timerEnd:null,timerAccum:0,finished:false};
   state.workouts.push(w); await save(); if(w.status==='planned') go('calendar'); else openWorkout(w.id);
 }
 function openWorkout(id){go('workout',{id:id});}
 async function startTemplate(pid){
   var t=getTpl(pid); if(!t)return; var exs=tplExArray(t).map(function(n){return {id:uid(),name:n,note:'',sets:[]};});
-  var w={id:uid(),date:todayISO(),status:'done',name:t.sub||t.name,block:t.name,method:t.method||'Без метода',phase:t.phase||'',comment:'',exercises:exs,timerStart:null,timerEnd:null,timerAccum:0};
+  var w={id:uid(),date:todayISO(),status:'done',name:t.sub||t.name,block:t.name,method:t.method||'Без метода',phase:t.phase||'',comment:'',exercises:exs,timerStart:null,timerEnd:null,timerAccum:0,finished:false};
   state.workouts.push(w); await save(); openWorkout(w.id);
 }
+async function finishWorkout(id){var w=findWorkout(id);if(!w)return;if(w.timerStart&&!w.timerEnd){w.timerAccum=(w.timerAccum||0)+Math.floor((Date.now()-w.timerStart)/1000);w.timerEnd=Date.now();w.timerStart=null;}w.finished=true;await save();render();}
 async function confirmPlan(pid){
   var t=getTpl(pid); if(!t)return; var date=document.getElementById('plan-date').value||dOff(1);
   var exs=tplExArray(t).map(function(n){return {id:uid(),name:n,note:'',sets:[]};});
-  var w={id:uid(),date:date,status:'planned',name:t.sub||t.name,block:t.name,method:t.method||'Без метода',phase:t.phase||'',comment:'',exercises:exs,timerStart:null,timerEnd:null,timerAccum:0};
+  var w={id:uid(),date:date,status:'planned',name:t.sub||t.name,block:t.name,method:t.method||'Без метода',phase:t.phase||'',comment:'',exercises:exs,timerStart:null,timerEnd:null,timerAccum:0,finished:false};
   state.workouts.push(w); await save(); calY=new Date(date+'T00:00:00').getFullYear();calM=new Date(date+'T00:00:00').getMonth(); go('calendar');
 }
-async function completeWorkout(id){var w=findWorkout(id);w.status='done';w.date=todayISO();await save();render();}
+async function completeWorkout(id){var w=findWorkout(id);w.status='done';w.date=todayISO();w.finished=false;await save();render();}
 function saveAsTemplate(id){ go('saveTpl',{id:id}); }
 function viewSaveTpl(){
   var w=findWorkout(route.params.id); if(!w){route={name:'home',params:{}};return viewHome();}
@@ -892,7 +936,7 @@ async function doSaveTemplate(id,cat){
   state.templates.push(t); await save(); TRAIN_CAT=cat; alert('Шаблон «'+t.name+'» сохранён в раздел «'+(cat==='zal'?'Зал':'Дома')+'».'); go('start');
 }
 async function delTemplate(id){ if(!confirm('Удалить этот шаблон?'))return; state.templates=state.templates.filter(function(t){return t.id!==id;}); await save(); render(); }
-async function delWorkout(id){ if(!confirm('Удалить эту тренировку из истории? Действие необратимо.'))return; state.workouts=state.workouts.filter(function(w){return w.id!==id;}); await save(); render(); }
+async function delWorkout(id){ if(!confirm('Удалить эту тренировку? Действие необратимо.'))return; state.workouts=state.workouts.filter(function(w){return w.id!==id;}); await save(); render(); }
 async function delExercise(wid,exId){ if(!confirm('Удалить это упражнение из тренировки?'))return; var w=findWorkout(wid); w.exercises=w.exercises.filter(function(e){return e.id!==exId;}); await save(); render(); }
 function pickEx(wid,name){var w=findWorkout(wid);w.exercises.push({id:uid(),name:name,note:'',sets:[]});save().then(function(){openWorkout(wid);});}
 function addCustomEx(wid,name){ if(state.customExercises.indexOf(name)<0 && !LIB.some(function(l){return l.n===name;})) state.customExercises.push(name); pickEx(wid,name); }
@@ -938,11 +982,11 @@ function importData(input){var f=input.files&&input.files[0];if(!f)return;var rd
 var wTick=null;
 async function toggleTimer(id){
   var w=findWorkout(id); if(!w)return;
-  if(w.timerStart && !w.timerEnd){ // running -> stop
+  if(w.timerStart && !w.timerEnd){ // running -> stop = завершить
     w.timerAccum=(w.timerAccum||0)+Math.floor((Date.now()-w.timerStart)/1000);
-    w.timerEnd=Date.now(); w.timerStart=null;
+    w.timerEnd=Date.now(); w.timerStart=null; w.finished=true;
   } else { // start/resume
-    w.timerStart=Date.now(); w.timerEnd=null;
+    w.timerStart=Date.now(); w.timerEnd=null; w.finished=false;
   }
   await save(); render();
 }
@@ -969,7 +1013,11 @@ function stopRest(){if(restInt)clearInterval(restInt);restInt=null;document.getE
 
 (async function(){
   try{ await load(); }catch(e){ if(!state) state=seed(); }
-  try{ if(!state.onboarded){route={name:'survey',params:{from:'onboard'}};} render(); }
+  try{
+    if(!state.onboarded){route={name:'survey',params:{from:'onboard'}};}
+    else { var aw=activeWorkout(); if(aw){route={name:'workout',params:{id:aw.id}};} }
+    render();
+  }
   catch(e){ try{ state=state||seed(); route={name:'home',params:{}}; render(); }catch(e2){} }
 })();
 </script>
