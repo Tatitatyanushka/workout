@@ -870,13 +870,49 @@ function viewExProgress(name){
 }
 
 function viewSettings(){
-  return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'home\')">'+I.back+'</button><div><div class="bt">Настройки</div><div class="bd">Анкета и резервная копия</div></div></div>'
+  return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'home\')">'+I.back+'</button><div><div class="bt">Настройки</div><div class="bd">Анкета и перенос данных</div></div></div>'
     +'<button class="savebtn alt" style="margin-top:0" onclick="go(\'survey\')">Изменить анкету и цель</button>'
-    +'<div class="section-h" style="margin-top:26px"><h2>Резервная копия</h2></div>'
-    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Скачай файл со всеми данными на всякий случай. Файл можно загрузить обратно в любой момент.</p>'
-    +'<button class="savebtn" onclick="exportData()">Выгрузить мои данные</button>'
-    +'<label class="savebtn alt" style="display:block;text-align:center;cursor:pointer">Загрузить из файла<input type="file" accept="application/json" style="display:none" onchange="importData(this)"></label>'
+    +'<div class="section-h" style="margin-top:26px"><h2>Перенос данных</h2></div>'
+    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Чтобы перенести данные на другое устройство: на этом нажми «Скопировать», отправь себе в Избранное, на другом устройстве скопируй текст и нажми «Вставить».</p>'
+    +'<button class="savebtn" onclick="copyData()">📋 Скопировать мои данные</button>'
+    +'<button class="savebtn alt" onclick="go(\'pasteData\')">Вставить данные с другого устройства</button>'
+    +'<div class="section-h" style="margin-top:26px"><h2>Резервная копия (файл)</h2></div>'
+    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Запасной способ — через файл, если он у тебя скачивается.</p>'
+    +'<button class="savebtn alt" onclick="exportData()">Выгрузить в файл</button>'
+    +'<label class="savebtn alt" style="display:block;text-align:center;cursor:pointer">Загрузить из файла<input type="file" accept="application/json,.json,text/plain" style="display:none" onchange="importData(this)"></label>'
     +'<div style="height:30px"></div></div>';
+}
+function viewPasteData(){
+  return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'settings\')">'+I.back+'</button><div><div class="bt">Вставить данные</div><div class="bd">С другого устройства</div></div></div>'
+    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Вставь сюда текст, который скопировал на другом устройстве кнопкой «Скопировать мои данные», и нажми «Применить». Текущие данные на этом устройстве заменятся.</p>'
+    +'<textarea id="paste-box" class="field" style="min-height:160px;resize:vertical;font-family:monospace;font-size:12px;" placeholder="Вставь данные сюда…"></textarea>'
+    +'<button class="savebtn" style="margin-top:14px" onclick="applyPasted()">Применить</button>'
+    +'<div style="height:30px"></div></div>';
+}
+async function copyData(){
+  var txt=JSON.stringify(state);
+  try{
+    await navigator.clipboard.writeText(txt);
+    alert('Данные скопированы! Теперь открой Избранное (Saved Messages) в Telegram и вставь их сообщением себе.');
+  }catch(e){
+    // запасной путь: показать поле для ручного копирования
+    var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');alert('Данные скопированы! Вставь их себе в Избранное в Telegram.');}
+    catch(e2){alert('Не удалось скопировать автоматически. Используй выгрузку в файл.');}
+    ta.remove();
+  }
+}
+async function applyPasted(){
+  var raw=(document.getElementById('paste-box').value||'').trim();
+  if(!raw){alert('Поле пустое — вставь данные.');return;}
+  var data; try{data=JSON.parse(raw);}catch(e){alert('Не получилось прочитать данные. Проверь, что скопировал весь текст целиком.');return;}
+  if(!data.workouts){alert('Это не похоже на данные приложения.');return;}
+  if(!confirm('Заменить данные на этом устройстве вставленными? Текущие данные здесь будут перезаписаны.'))return;
+  data.updatedAt=Date.now();
+  state=data;
+  if(!state.customExercises)state.customExercises=[];if(!state.templates)state.templates=[];if(!state.measurements)state.measurements=[];if(!state.photos)state.photos=[];if(!state.workouts)state.workouts=[];
+  if(!state.videos)state.videos={zal:[],home:[],noaxial:[]};
+  await save(); alert('Готово! Данные перенесены.'); go('home');
 }
 
 function render(){
@@ -886,7 +922,7 @@ function render(){
     case 'newWorkout':v=viewNewWorkout();break; case 'workout':v=viewWorkout();break;
     case 'newExercise':v=viewNewExercise();break; case 'exercise':v=viewExercise();break;
     case 'calendar':v=viewCalendar();break; case 'body':v=viewBody();break; case 'newMeasure':v=viewNewMeasure();break;
-    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; default:v=viewHome();
+    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; case 'pasteData':v=viewPasteData();break; default:v=viewHome();
   }
   document.getElementById('screen').innerHTML=v||'';
   document.getElementById('nav').innerHTML=navBar();
