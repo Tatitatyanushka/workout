@@ -206,6 +206,13 @@
   .cell .num{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
   .cell.done .num{background:var(--accent);color:var(--accent-deep);font-weight:600;}
   .cell.plan .num{border:1.8px solid var(--ink);color:var(--ink);font-weight:600;}
+  .cell.missed .num{border:1.8px solid #d98a8a;color:#b5544f;font-weight:600;background:#fbeceb;}
+  .ctag.miss{background:#fbeceb;border:1.5px solid #d98a8a;color:#b5544f;}
+  .callegend .d4{width:15px;height:15px;border-radius:50%;border:1.8px solid #d98a8a;background:#fbeceb;}
+  .planbanner.missed{background:#fbeceb;border:1px solid #ecc9c7;}
+  .planbanner.missed .pt{color:#b5544f;}
+  .planbanner .pb-move{background:var(--card)!important;color:var(--ink)!important;box-shadow:var(--shadow);}
+  .planbanner .pb-del{background:transparent!important;color:#b5544f!important;border:1px solid #e3b7b4!important;}
   .cell.today .num{outline:2px solid var(--accent);outline-offset:2px;}
   .callegend{display:flex;gap:16px;margin-top:14px;padding:0 2px;flex-wrap:wrap;}
   .callegend div{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);}
@@ -279,15 +286,20 @@
   .catbar button svg{width:15px;height:15px;}
   .vidcard{display:flex;align-items:center;gap:13px;background:var(--card);border-radius:18px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;text-decoration:none;color:inherit;position:relative;transition:transform .12s ease;}
   .vidcard:active{transform:scale(0.98);}
-  .vidcard .vthumb{width:46px;height:46px;border-radius:12px;background:#FBE9EC;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .vidcard .vthumb svg{width:22px;height:22px;fill:#E0394B;}
+  .vidcard{align-items:center;}
+  .vidcard .vthumb{width:96px;height:60px;border-radius:12px;background:#15150F;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;overflow:hidden;}
+  .vidcard .vthumb.noimg{background:#FBE9EC;}
+  .vidcard .vthumb.noimg svg{width:24px;height:24px;fill:#E0394B;}
+  .vidcard .vthumb .vplay{width:30px;height:30px;border-radius:50%;background:rgba(21,21,15,0.62);display:flex;align-items:center;justify-content:center;}
+  .vidcard .vthumb .vplay svg{width:16px;height:16px;fill:#fff;}
   .vidcard .vt{flex:1;min-width:0;}
-  .vidcard .vt .vn{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:30px;}
-  .vidcard .vt .vu{font-size:11px;color:var(--muted);margin-top:2px;}
+  .vidcard .vt .vn{font-weight:600;font-size:14px;line-height:1.3;padding-right:28px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .vidcard .vt .vu{font-size:11px;color:var(--muted);margin-top:3px;}
   .vidcard .vdel{position:absolute;right:12px;top:12px;width:26px;height:26px;border-radius:8px;background:var(--paper);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;}
   .vidcard .vdel svg{width:14px;height:14px;stroke:#b06a6a;}
   .addvidbtn{width:100%;border:1px dashed var(--line);background:transparent;border-radius:16px;padding:13px;font-family:'Onest';font-weight:600;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:10px;}
   .addvidbtn svg{width:16px;height:16px;stroke:var(--muted);}
+  .vidgroup{font-family:'Onest';font-weight:700;font-size:13px;color:var(--accent-deep);background:var(--accent-soft);border-radius:10px;padding:7px 12px;margin:14px 0 10px;display:inline-block;}
   .cathead{font-family:'Unbounded';font-weight:500;font-size:16px;margin:22px 2px 14px;display:flex;align-items:center;gap:8px;}
   .cathead svg{width:18px;height:18px;stroke:var(--ink);}
   .ctr-row{display:flex;gap:9px;margin-bottom:18px;}
@@ -312,11 +324,13 @@
   .hcell.done span{background:var(--accent);color:var(--accent-deep);font-weight:600;}
   .hcell.today span{outline:2px solid var(--accent);outline-offset:-2px;font-weight:600;}
   .hcell.plan span{border:1.8px solid var(--ink);font-weight:600;}
+  .hcell.missed span{border:1.8px solid #d98a8a;color:#b5544f;background:#fbeceb;font-weight:600;}
   .homecal-leg{display:flex;gap:16px;margin-top:14px;padding:0 2px;}
   .homecal-leg span{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
   .homecal-leg .d1{width:13px;height:13px;border-radius:50%;background:var(--accent);display:inline-block;}
   .homecal-leg .d2{width:13px;height:13px;border-radius:50%;outline:2px solid var(--accent);outline-offset:-2px;display:inline-block;}
   .homecal-leg .d3{width:13px;height:13px;border-radius:50%;border:1.8px solid var(--ink);display:inline-block;}
+  .homecal-leg .d5{width:13px;height:13px;border-radius:50%;border:1.8px solid #d98a8a;background:#fbeceb;display:inline-block;}
   .activebar{background:var(--ink);color:#fff;border-radius:20px;padding:16px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
   .activebar .ab-t{font-size:11px;color:var(--accent);font-weight:600;display:flex;align-items:center;gap:6px;}
   .activebar .ab-t:before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;animation:pulse 1.4s infinite;}
@@ -354,6 +368,22 @@ var Store={
   setBoth:function(k,v){ mem[k]=v; try{localStorage.setItem(k,v);}catch(e){} if(CS){csSet(k,v);} }
 };
 var KEY='fm4m_v4';
+var DEFAULT_HOME_VIDEOS=[
+  {group:'БДСМ 10 из 10',title:'Тренировка 1',url:'https://youtu.be/FeR-4_Opt-g'},
+  {group:'БДСМ 10 из 10',title:'Тренировка 2',url:'https://youtu.be/yXHgcYpUVD4'},
+  {group:'БДСМ 10 из 10',title:'Тренировка 3',url:'https://youtu.be/nbP7m0S0Ato'},
+  {group:'БДСМ 10 из 10',title:'Тренировка 4',url:'https://youtu.be/yVUcHEOr450'},
+  {group:'БДСМ 10 из 10',title:'Тренировка 5',url:'https://youtu.be/_zMDwfLM9mk'},
+  {group:'Марафоны для начинающих',title:'Танцевальная под треки 2010–2020',url:'https://youtube.com/watch?v=XpYV87JRlKU'},
+  {group:'Марафоны для начинающих',title:'Руки без гантелей · 20 минут',url:'https://youtube.com/watch?v=LZadh0M13Bk'},
+  {group:'Марафоны для начинающих',title:'ZUMBA для похудения',url:'https://youtube.com/watch?v=RcXteQGL9AA'},
+  {group:'Марафоны для начинающих',title:'Убей жир 1 · похудение дома',url:'https://youtube.com/watch?v=LEGrmRrBpR0'},
+  {group:'Марафоны для начинающих',title:'Ягодицы за 12 минут',url:'https://youtube.com/watch?v=igQVcFEa4rs'},
+  {group:'Зарядка / осанка / растяжка',title:'Зарядка · утренняя растяжка',url:'https://youtube.com/watch?v=WkoJqBTG3T4'},
+  {group:'Зарядка / осанка / растяжка',title:'Растяжка на всё тело',url:'https://youtube.com/watch?v=RpXOeLUrgHQ'},
+  {group:'Зарядка / осанка / растяжка',title:'Лимфодренажная · утренняя зарядка',url:'https://youtube.com/watch?v=F1uxk9RCxJc'},
+  {group:'Зарядка / осанка / растяжка',title:'Зарядка · утренняя растяжка 2',url:'https://youtube.com/watch?v=Q-yqIHVQdd0'}
+];
 var METHODS=['Без метода','Круговая','Стандарт 2+1+2','Тяни-толкай','Дроп-сеты','Отдых-пауза'];
 var LIB=[
 {n:'Приседания со штангой',a:['присед','приседания','squat']},
@@ -438,7 +468,8 @@ async function load(){
     await save();
   }
   if(!state.customExercises)state.customExercises=[]; if(!state.templates)state.templates=[]; if(!state.measurements)state.measurements=[]; if(!state.photos)state.photos=[]; if(!state.workouts)state.workouts=[];
-  if(!state.videos)state.videos={zal:[],home:[],noaxial:[]}; if(!state.videos.zal)state.videos.zal=[]; if(!state.videos.home)state.videos.home=[]; if(!state.videos.noaxial)state.videos.noaxial=[];}
+  if(!state.videos)state.videos={zal:[],home:[],noaxial:[]}; if(!state.videos.zal)state.videos.zal=[]; if(!state.videos.home)state.videos.home=[]; if(!state.videos.noaxial)state.videos.noaxial=[];
+  if(!state.defaultVideosV1){ state.videos.home=DEFAULT_HOME_VIDEOS.concat(state.videos.home||[]); state.defaultVideosV1=true; }}
 async function save(){ state.updatedAt=Date.now(); Store.setBoth(KEY, JSON.stringify(state)); }
 
 function workoutsDone(){return state.workouts.filter(function(w){return w.status!=='planned';}).sort(function(a,b){return a.date<b.date?1:-1;});}
@@ -502,17 +533,17 @@ function navBar(){
 function homeMonthCalendar(){
   var first=new Date(calY,calM,1); var startDow=(first.getDay()+6)%7;
   var days=new Date(calY,calM+1,0).getDate();
-  var done={},plan={};
-  state.workouts.forEach(function(w){var d=new Date(w.date+'T00:00:00');if(d.getFullYear()===calY&&d.getMonth()===calM){if(w.status==='planned'){if(!done[d.getDate()])plan[d.getDate()]=1;}else done[d.getDate()]=1;}});
+  var done={},plan={},miss={},dayId={};
+  state.workouts.forEach(function(w){var d=new Date(w.date+'T00:00:00');if(d.getFullYear()===calY&&d.getMonth()===calM){var dd=d.getDate();dayId[dd]=w.date;if(w.status==='planned'){if(isMissed(w)){if(!done[dd])miss[dd]=1;}else if(!done[dd])plan[dd]=1;}else done[dd]=1;}});
   var n2=new Date(); var todayD=(n2.getFullYear()===calY&&n2.getMonth()===calM)?n2.getDate():-1;
   var cells='';for(var i=0;i<startDow;i++)cells+='<div class="hcell blank"></div>';
-  for(var d=1;d<=days;d++){var cls='hcell'+(done[d]?' done':(plan[d]?' plan':''))+(d===todayD?' today':'');cells+='<div class="'+cls+'"><span>'+d+'</span></div>';}
+  for(var d=1;d<=days;d++){var cls='hcell'+(done[d]?' done':(miss[d]?' missed':(plan[d]?' plan':'')))+(d===todayD?' today':'');cells+='<div class="'+cls+'"><span>'+d+'</span></div>';}
   var dow=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(function(x){return '<div class="hdow">'+x+'</div>';}).join('');
   var monthN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   return '<div class="homecal" onclick="go(\'calendar\')">'
     +'<div class="homecal-h"><span class="hcm">'+monthN[calM]+' '+calY+'</span><span class="hcnav"><button onclick="event.stopPropagation();calShift(-1)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg></button><button onclick="event.stopPropagation();calShift(1)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button></span></div>'
     +'<div class="homecal-grid">'+dow+cells+'</div>'
-    +'<div class="homecal-leg"><span><i class="d1"></i>выполнено</span><span><i class="d3"></i>план</span><span><i class="d2"></i>сегодня</span></div></div>';
+    +'<div class="homecal-leg"><span><i class="d1"></i>выполнено</span><span><i class="d3"></i>план</span><span><i class="d5"></i>пропуск</span><span><i class="d2"></i>сегодня</span></div></div>';
 }
 function viewHome(){
   var ws=workoutsDone();
@@ -560,13 +591,27 @@ function viewStart(){
       +'<div class="tplbtns"><button class="gobtn" onclick="startTemplate(\'u:'+t.id+'\')">Начать сейчас</button><button class="plbtn" onclick="go(\'plan\',{tpl:\'u:'+t.id+'\'})">Запланировать</button></div></div>';
   }
   function host(u){try{return new URL(u).hostname.replace('www.','');}catch(e){return 'ссылка';}}
+  function ytId(u){try{var m=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);return m?m[1]:null;}catch(e){return null;}}
   function vidCard(v,cat,i){
-    return '<a class="vidcard" href="'+esc(v.url)+'" target="_blank" rel="noopener"><div class="vthumb"><svg viewBox="0 0 24 24"><path d="M10 8l6 4-6 4V8z"/></svg></div><div class="vt"><div class="vn">'+esc(v.title)+'</div><div class="vu">'+esc(host(v.url))+'</div></div><button class="vdel" onclick="event.preventDefault();event.stopPropagation();delVideo(\''+cat+'\','+i+')">'+I.trash+'</button></a>';
+    var id=ytId(v.url);
+    var thumb=id
+      ? '<div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/'+id+'/mqdefault.jpg)"><span class="vplay"><svg viewBox="0 0 24 24"><path d="M9 7l9 5-9 5V7z"/></svg></span></div>'
+      : '<div class="vthumb noimg"><svg viewBox="0 0 24 24"><path d="M10 8l6 4-6 4V8z"/></svg></div>';
+    return '<a class="vidcard" href="'+esc(v.url)+'" target="_blank" rel="noopener">'+thumb+'<div class="vt"><div class="vn">'+esc(v.title)+'</div><div class="vu">'+esc(host(v.url))+'</div></div><button class="vdel" onclick="event.preventDefault();event.stopPropagation();delVideo(\''+cat+'\','+i+')">'+I.trash+'</button></a>';
   }
   function videos(cat){
     var arr=(state.videos&&state.videos[cat])||[];
-    return arr.map(function(v,i){return vidCard(v,cat,i);}).join('')
-      +'<button class="addvidbtn" onclick="go(\'addvideo\',{cat:\''+cat+'\'})">'+I.plusd+' Добавить видео с YouTube</button>';
+    var addBtn='<button class="addvidbtn" onclick="go(\'addvideo\',{cat:\''+cat+'\'})">'+I.plusd+' Добавить видео с YouTube</button>';
+    if(cat!=='home'){
+      return arr.map(function(v,i){return vidCard(v,cat,i);}).join('')+addBtn;
+    }
+    var order=['БДСМ 10 из 10','Марафоны для начинающих','Зарядка / осанка / растяжка'];
+    var groups={}; arr.forEach(function(v,i){var g=v.group||'Моё';(groups[g]=groups[g]||[]).push({v:v,i:i});});
+    var keys=order.filter(function(k){return groups[k];}).concat(Object.keys(groups).filter(function(k){return order.indexOf(k)<0;}));
+    var html=keys.map(function(g){
+      return '<div class="vidgroup">'+esc(g)+'</div>'+groups[g].map(function(o){return vidCard(o.v,cat,o.i);}).join('');
+    }).join('');
+    return html+addBtn;
   }
   var dumbbell='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 8.5v7M4 10v3M17.5 8.5v7M20 10v3M6.5 12h11"/></svg>';
   var homeIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M3 11l9-8 9 8M5 9v11h14V9"/></svg>';
@@ -615,7 +660,8 @@ async function saveVideo(cat){
   if(!title||!url){alert('Заполни название и ссылку');return;}
   if(!/^https?:\/\//i.test(url)){alert('Ссылка должна начинаться с https://');return;}
   if(!state.videos[cat])state.videos[cat]=[];
-  state.videos[cat].push({title:title,url:url});
+  var item={title:title,url:url}; if(cat==='home')item.group='Моё';
+  state.videos[cat].push(item);
   await save(); TRAIN_CAT=cat; go('start');
 }
 async function delVideo(cat,i){ if(!confirm('Удалить это видео?'))return; state.videos[cat].splice(i,1); await save(); render(); }
@@ -663,7 +709,11 @@ function viewWorkout(){
   }).join('');
   return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'home\')">'+I.back+'</button><div><div class="bt">'+esc(w.name)+'</div><div class="bd">'+fmtDate(w.date)+(w.block?' · '+esc(w.block):'')+(planned?' · план':'')+'</div></div></div>'
     +'<div class="tags">'+(w.method&&w.method!=='Без метода'?'<span class="tag method">'+esc(w.method)+'</span>':'')+(w.phase?'<span class="tag phase">'+esc(w.phase)+'</span>':'')+'<span class="tag info">'+w.exercises.length+' упр.</span></div>'
-    +(planned?'<div class="planbanner"><div class="pt">Запланирована на '+fmtDate(w.date)+'</div><button onclick="completeWorkout(\''+w.id+'\')">Перенести в выполненные (сегодня)</button></div>':'')
+    +(planned?'<div class="planbanner'+(isMissed(w)?' missed':'')+'"><div class="pt">'+(isMissed(w)?'Пропущена · была на '+fmtDate(w.date):'Запланирована на '+fmtDate(w.date))+'</div>'
+       +'<button onclick="completeWorkout(\''+w.id+'\')">Выполнить сегодня</button>'
+       +'<button class="pb-move" onclick="go(\'movePlan\',{id:\''+w.id+'\'})">Перенести на другую дату</button>'
+       +'<button class="pb-del" onclick="delWorkout(\''+w.id+'\')">Удалить</button>'
+       +'</div>':'')
     +timerBlock
     +'<button class="disclosure" onclick="saveAsTemplate(\''+w.id+'\')" style="margin-bottom:13px"><span class="dl" style="font-size:14px">Сохранить как шаблон</span>'+I.plusd+'</button>'
     +(exs||'<div class="empty">'+I.bolt+'<p>Добавь первое упражнение.</p></div>')
@@ -753,23 +803,24 @@ function attachSwipe(){
   },{passive:true});
 }
 
+function isMissed(w){return w.status==='planned'&&w.date<todayISO();}
+function workoutsOnDate(iso){return state.workouts.filter(function(w){return w.date===iso;});}
+function openDay(iso){var list=workoutsOnDate(iso);if(!list.length)return;openWorkout(list[0].id);}
 function viewCalendar(){
   var first=new Date(calY,calM,1); var startDow=(first.getDay()+6)%7;
   var days=new Date(calY,calM+1,0).getDate();
-  var done={},plan={};
-  state.workouts.forEach(function(w){var d=new Date(w.date+'T00:00:00');if(d.getFullYear()===calY&&d.getMonth()===calM){if(w.status==='planned'){if(!done[d.getDate()])plan[d.getDate()]=1;}else done[d.getDate()]=1;}});
+  var done={},plan={},miss={},dayId={};
+  state.workouts.forEach(function(w){var d=new Date(w.date+'T00:00:00');if(d.getFullYear()===calY&&d.getMonth()===calM){var dd=d.getDate();dayId[dd]=w.date;if(w.status==='planned'){if(isMissed(w)){if(!done[dd])miss[dd]=1;}else if(!done[dd])plan[dd]=1;}else done[dd]=1;}});
   var n2=new Date(); var todayD=(n2.getFullYear()===calY&&n2.getMonth()===calM)?n2.getDate():-1;
   var cells='';for(var i=0;i<startDow;i++)cells+='<div class="cell blank"></div>';
-  for(var d=1;d<=days;d++){var cls='cell'+(done[d]?' done':(plan[d]?' plan':''))+(d===todayD?' today':'');cells+='<div class="'+cls+'"><span class="num">'+d+'</span></div>';}
+  for(var d=1;d<=days;d++){var cls='cell'+(done[d]?' done':(miss[d]?' missed':(plan[d]?' plan':'')))+(d===todayD?' today':'');var clickable=dayId[d]?(' onclick="openDay(\''+dayId[d]+'\')" style="cursor:pointer"'):'';cells+='<div class="'+cls+'"'+clickable+'><span class="num">'+d+'</span></div>';}
   var dow=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(function(x){return '<div class="dow">'+x+'</div>';}).join('');
   var monthN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-  var upcoming=state.workouts.filter(function(w){return w.status==='planned'&&w.date>=todayISO();}).sort(function(a,b){return a.date<b.date?-1:1;});
-  var upHtml=upcoming.length?upcoming.map(function(w){return '<div class="wcard" onclick="openWorkout(\''+w.id+'\')"><button class="cardtrash" onclick="event.stopPropagation();delWorkout(\''+w.id+'\')">'+I.trash+'</button><div class="date">'+fmtDate(w.date)+' · запланировано</div><div class="wname">'+esc(w.name)+'</div><div class="meta">'+tagsHtml(w)+'<span class="ctag plan">план</span></div></div>';}).join(''):'<div class="empty" style="padding:22px"><p>Нет запланированных тренировок.<br>Добавь из «Выбрать тренировку».</p></div>';
+  var planned=state.workouts.filter(function(w){return w.status==='planned';}).sort(function(a,b){return a.date<b.date?-1:1;});
+  var upHtml=planned.length?planned.map(function(w){var m=isMissed(w);return '<div class="wcard" onclick="openWorkout(\''+w.id+'\')"><button class="cardtrash" onclick="event.stopPropagation();delWorkout(\''+w.id+'\')">'+I.trash+'</button><div class="date">'+fmtDate(w.date)+(m?' · пропущено':' · запланировано')+'</div><div class="wname">'+esc(w.name)+'</div><div class="meta">'+tagsHtml(w)+'<span class="ctag '+(m?'miss':'plan')+'">'+(m?'пропущено':'план')+'</span></div></div>';}).join(''):'<div class="empty" style="padding:22px"><p>Нет запланированных тренировок.<br>Добавь из «Выбрать тренировку».</p></div>';
   return '<div class="view"><div class="topbar"><div><div class="hello">Расписание</div><div class="title-xl">Календарь</div></div></div>'
     +'<div class="calcard"><div class="calhead"><div class="cm">'+monthN[calM]+' '+calY+'</div><div class="cnav"><button onclick="calShift(-1)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg></button><button onclick="calShift(1)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button></div></div>'
-    +'<div class="calgrid">'+dow+cells+'</div><div class="callegend"><div><span class="d1"></span> Тренировка была</div><div><span class="d2"></span> Запланирована</div></div></div>'
-    +'<div class="plancard"><div class="pttl">План недели · ФМ4М</div><div class="weekstrip">'
-    +'<div class="day"><div class="dn">Пн</div><div class="db work">Б1</div></div><div class="day"><div class="dn">Вт</div><div class="db work">Б2</div></div><div class="day"><div class="dn">Ср</div><div class="db rest">—</div></div><div class="day"><div class="dn">Чт</div><div class="db work">Б3</div></div><div class="day"><div class="dn">Пт</div><div class="db rest">—</div></div><div class="day"><div class="dn">Сб</div><div class="db work">Б4</div></div><div class="day"><div class="dn">Вс</div><div class="db rest">—</div></div></div></div>'
+    +'<div class="calgrid">'+dow+cells+'</div><div class="callegend"><div><span class="d1"></span> Выполнено</div><div><span class="d2"></span> План</div><div><span class="d4"></span> Пропущено</div></div></div>'
     +'<div class="section-h"><h2>Запланировано</h2></div>'+upHtml+'<div style="height:40px"></div></div>';
 }
 function calShift(d){calM+=d;if(calM<0){calM=11;calY--;}if(calM>11){calM=0;calY++;}render();}
@@ -922,7 +973,7 @@ function render(){
     case 'newWorkout':v=viewNewWorkout();break; case 'workout':v=viewWorkout();break;
     case 'newExercise':v=viewNewExercise();break; case 'exercise':v=viewExercise();break;
     case 'calendar':v=viewCalendar();break; case 'body':v=viewBody();break; case 'newMeasure':v=viewNewMeasure();break;
-    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; case 'pasteData':v=viewPasteData();break; default:v=viewHome();
+    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; case 'pasteData':v=viewPasteData();break; case 'movePlan':v=viewMovePlan();break; default:v=viewHome();
   }
   document.getElementById('screen').innerHTML=v||'';
   document.getElementById('nav').innerHTML=navBar();
@@ -959,6 +1010,20 @@ async function confirmPlan(pid){
   state.workouts.push(w); await save(); calY=new Date(date+'T00:00:00').getFullYear();calM=new Date(date+'T00:00:00').getMonth(); go('calendar');
 }
 async function completeWorkout(id){var w=findWorkout(id);w.status='done';w.date=todayISO();w.finished=false;await save();render();}
+function viewMovePlan(){
+  var w=findWorkout(route.params.id); if(!w){route={name:'calendar',params:{}};return viewCalendar();}
+  return '<div class="view"><div class="bhead"><button class="bback" onclick="openWorkout(\''+w.id+'\')">'+I.back+'</button><div><div class="bt">Перенести тренировку</div><div class="bd">'+esc(w.name)+'</div></div></div>'
+    +'<p style="font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:16px;">Выбери новую дату — тренировка останется запланированной на этот день.</p>'
+    +'<div class="formgroup"><label>Новая дата</label><input class="field" id="move-date" type="date" value="'+w.date+'"></div>'
+    +'<button class="savebtn" onclick="doMovePlan(\''+w.id+'\')">Перенести</button><div style="height:20px"></div></div>';
+}
+async function doMovePlan(id){
+  var w=findWorkout(id); if(!w)return; var nd=document.getElementById('move-date').value;
+  if(!nd){alert('Выбери дату');return;}
+  w.date=nd; w.status='planned'; await save();
+  calY=new Date(nd+'T00:00:00').getFullYear(); calM=new Date(nd+'T00:00:00').getMonth();
+  go('calendar');
+}
 function saveAsTemplate(id){ go('saveTpl',{id:id}); }
 function viewSaveTpl(){
   var w=findWorkout(route.params.id); if(!w){route={name:'home',params:{}};return viewHome();}
