@@ -298,10 +298,9 @@
   .vidcard .vt{flex:1;min-width:0;}
   .vidcard .vt .vn{font-weight:600;font-size:14px;line-height:1.3;padding-right:28px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
   .vidcard .vt .vu{font-size:11px;color:var(--muted);margin-top:3px;}
-  .vidwrap{margin-bottom:14px;}
-  .vidwrap .vidcard{margin-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0;}
-  .viddiary{width:100%;border:none;background:var(--accent);color:var(--accent-deep);font-family:'Onest';font-weight:600;font-size:13px;padding:11px;border-bottom-left-radius:18px;border-bottom-right-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
-  .viddiary svg{width:15px;height:15px;stroke:var(--accent-deep);}
+  .vidwrap{margin-bottom:16px;}
+  .vidwrap .vidcard{margin-bottom:0;}
+  .vidwrap .tplbtns{margin-top:9px;}
   .vidcard .vdel{position:absolute;right:12px;top:12px;width:26px;height:26px;border-radius:8px;background:var(--paper);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;}
   .vidcard .vdel svg{width:14px;height:14px;stroke:#b06a6a;}
   .addvidbtn{width:100%;border:1px dashed var(--line);background:transparent;border-radius:16px;padding:13px;font-family:'Onest';font-weight:600;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:10px;}
@@ -607,8 +606,8 @@ function viewStart(){
       ? '<div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/'+id+'/mqdefault.jpg)"><span class="vplay"><svg viewBox="0 0 24 24"><path d="M9 7l9 5-9 5V7z"/></svg></span></div>'
       : '<div class="vthumb noimg"><svg viewBox="0 0 24 24"><path d="M10 8l6 4-6 4V8z"/></svg></div>';
     var card='<a class="vidcard" href="'+esc(v.url)+'" target="_blank" rel="noopener">'+thumb+'<div class="vt"><div class="vn">'+esc(v.title)+'</div><div class="vu">'+esc(host(v.url))+'</div></div><button class="vdel" onclick="event.preventDefault();event.stopPropagation();delVideo(\''+cat+'\','+i+')">'+I.trash+'</button></a>';
-    var diaryBtn='<button class="viddiary" onclick="go(\'videoDiary\',{cat:\''+cat+'\',i:'+i+'})">'+I.plusd+' В дневник тренировок</button>';
-    return '<div class="vidwrap">'+card+diaryBtn+'</div>';
+    var btns='<div class="tplbtns"><button class="gobtn" onclick="videoStartNow(\''+cat+'\','+i+')">Начать сейчас</button><button class="plbtn" onclick="go(\'videoDiary\',{cat:\''+cat+'\',i:'+i+'})">Запланировать</button></div>';
+    return '<div class="vidwrap">'+card+btns+'</div>';
   }
   function videos(cat){
     var arr=(state.videos&&state.videos[cat])||[];
@@ -934,15 +933,55 @@ function viewExProgress(name){
 function viewSettings(){
   return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'home\')">'+I.back+'</button><div><div class="bt">Настройки</div><div class="bd">Анкета и перенос данных</div></div></div>'
     +'<button class="savebtn alt" style="margin-top:0" onclick="go(\'survey\')">Изменить анкету и цель</button>'
-    +'<div class="section-h" style="margin-top:26px"><h2>Перенос данных</h2></div>'
-    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Чтобы перенести данные на другое устройство: на этом нажми «Скопировать», отправь себе в Избранное, на другом устройстве скопируй текст и нажми «Вставить».</p>'
-    +'<button class="savebtn" onclick="copyData()">📋 Скопировать мои данные</button>'
-    +'<button class="savebtn alt" onclick="go(\'pasteData\')">Вставить данные с другого устройства</button>'
-    +'<div class="section-h" style="margin-top:26px"><h2>Резервная копия (файл)</h2></div>'
-    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Запасной способ — через файл, если он у тебя скачивается.</p>'
+    +'<div class="section-h" style="margin-top:26px"><h2>Перенос по коду</h2></div>'
+    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Самый простой способ перенести данные между телефоном и компьютером. На одном устройстве нажми «Поделиться» и получи код, на другом — «Получить по коду» и введи его.</p>'
+    +'<button class="savebtn" onclick="shareByCode()">📤 Поделиться по коду</button>'
+    +'<button class="savebtn alt" onclick="go(\'getCode\')">📥 Получить по коду</button>'
+    +'<div class="section-h" style="margin-top:26px"><h2>Другие способы</h2></div>'
+    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Перенос через копирование текста или файл — если перенос по коду не сработал.</p>'
+    +'<button class="savebtn alt" onclick="copyData()">Скопировать данные текстом</button>'
+    +'<button class="savebtn alt" onclick="go(\'pasteData\')">Вставить данные текстом</button>'
     +'<button class="savebtn alt" onclick="exportData()">Выгрузить в файл</button>'
     +'<label class="savebtn alt" style="display:block;text-align:center;cursor:pointer">Загрузить из файла<input type="file" accept="application/json,.json,text/plain" style="display:none" onchange="importData(this)"></label>'
     +'<div style="height:30px"></div></div>';
+}
+function viewGetCode(){
+  return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'settings\')">'+I.back+'</button><div><div class="bt">Получить по коду</div><div class="bd">С другого устройства</div></div></div>'
+    +'<p style="font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:18px;">Вставь код, который показало другое устройство в «Поделиться по коду». Данные с того устройства заменят данные здесь.</p>'
+    +'<div class="formgroup"><label>Код переноса</label><input class="field" id="code-box" inputmode="text" placeholder="Вставь код сюда"></div>'
+    +'<button class="savebtn" onclick="receiveByCode()">Получить данные</button><div style="height:20px"></div></div>';
+}
+var CODE_API='https://jsonblob.com/api/jsonBlob';
+async function shareByCode(){
+  try{
+    var resp=await fetch(CODE_API,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({app:'tanya-trenit',ts:Date.now(),state:state})});
+    if(!resp.ok)throw new Error('bad status '+resp.status);
+    var loc=resp.headers.get('Location')||resp.headers.get('location');
+    if(!loc)throw new Error('no location');
+    var code=loc.split('/').pop();
+    try{await navigator.clipboard.writeText(code);}catch(e){}
+    prompt('Готово! Код скопирован. Введи его на другом устройстве в «Получить по коду». Код действует около суток:', code);
+  }catch(e){
+    alert('Не получилось создать код (нет интернета или сервис недоступен). Попробуй ещё раз или используй перенос текстом/файлом.');
+  }
+}
+async function receiveByCode(){
+  var code=(document.getElementById('code-box').value||'').trim();
+  if(!code){alert('Введи код.');return;}
+  try{
+    var resp=await fetch(CODE_API+'/'+encodeURIComponent(code),{headers:{'Accept':'application/json'}});
+    if(!resp.ok)throw new Error('bad status '+resp.status);
+    var payload=await resp.json();
+    var data=payload&&payload.state?payload.state:payload;
+    if(!data||!data.workouts){alert('По этому коду нет данных приложения. Проверь код.');return;}
+    if(!confirm('Заменить данные на этом устройстве данными по коду?'))return;
+    data.updatedAt=Date.now(); state=data;
+    if(!state.customExercises)state.customExercises=[];if(!state.templates)state.templates=[];if(!state.measurements)state.measurements=[];if(!state.photos)state.photos=[];if(!state.workouts)state.workouts=[];
+    if(!state.videos)state.videos={zal:[],home:[],noaxial:[]};
+    await save(); alert('Готово! Данные перенесены.'); go('home');
+  }catch(e){
+    alert('Не получилось получить данные по коду (нет интернета, неверный код или срок истёк). Проверь код или используй перенос текстом/файлом.');
+  }
 }
 function viewPasteData(){
   return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'settings\')">'+I.back+'</button><div><div class="bt">Вставить данные</div><div class="bd">С другого устройства</div></div></div>'
@@ -984,7 +1023,7 @@ function render(){
     case 'newWorkout':v=viewNewWorkout();break; case 'workout':v=viewWorkout();break;
     case 'newExercise':v=viewNewExercise();break; case 'exercise':v=viewExercise();break;
     case 'calendar':v=viewCalendar();break; case 'body':v=viewBody();break; case 'newMeasure':v=viewNewMeasure();break;
-    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; case 'pasteData':v=viewPasteData();break; case 'movePlan':v=viewMovePlan();break; case 'videoDiary':v=viewVideoDiary();break; default:v=viewHome();
+    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; case 'pasteData':v=viewPasteData();break; case 'movePlan':v=viewMovePlan();break; case 'videoDiary':v=viewVideoDiary();break; case 'getCode':v=viewGetCode();break; default:v=viewHome();
   }
   document.getElementById('screen').innerHTML=v||'';
   document.getElementById('nav').innerHTML=navBar();
@@ -1025,14 +1064,18 @@ function getVideo(cat,i){var arr=(state.videos&&state.videos[cat])||[];return ar
 function viewVideoDiary(){
   var cat=route.params.cat, i=route.params.i; var v=getVideo(cat,i);
   if(!v){route={name:'start',params:{}};return viewStart();}
-  return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'start\')">'+I.back+'</button><div><div class="bt">В дневник тренировок</div><div class="bd">'+esc(v.title)+'</div></div></div>'
-    +'<p style="font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:18px;">Добавь это видео-занятие в свой дневник, чтобы оно попало в календарь и в счётчики прогресса на главной.</p>'
-    +'<button class="savebtn" onclick="videoToToday(\''+cat+'\','+i+')">Выполнила сегодня</button>'
-    +'<div class="formgroup" style="margin-top:20px"><label>Или запланировать на дату</label><input class="field" id="vd-date" type="date" value="'+todayISO()+'"></div>'
-    +'<button class="savebtn alt" onclick="videoToPlan(\''+cat+'\','+i+')">Запланировать</button><div style="height:20px"></div></div>';
+  return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'start\')">'+I.back+'</button><div><div class="bt">Запланировать</div><div class="bd">'+esc(v.title)+'</div></div></div>'
+    +'<p style="font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:18px;">Выбери дату — занятие встанет в план и появится в календаре. Когда выполнишь — отметишь, и оно попадёт в счётчики прогресса.</p>'
+    +'<div class="formgroup"><label>Дата тренировки</label><input class="field" id="vd-date" type="date" value="'+todayISO()+'"></div>'
+    +'<button class="savebtn" onclick="videoToPlan(\''+cat+'\','+i+')">Добавить в календарь</button><div style="height:20px"></div></div>';
 }
 function makeVideoWorkout(v,date,status){
   return {id:uid(),date:date,status:status,name:v.title,block:'Дома · видео',method:'Без метода',phase:'',comment:'',exercises:[],timerStart:null,timerEnd:null,timerAccum:0,finished:status==='done',videoUrl:v.url};
+}
+async function videoStartNow(cat,i){
+  var v=getVideo(cat,i); if(!v)return;
+  var w=makeVideoWorkout(v,todayISO(),'done'); w.finished=false;
+  state.workouts.push(w); await save(); openWorkout(w.id);
 }
 async function videoToToday(cat,i){
   var v=getVideo(cat,i); if(!v)return;
