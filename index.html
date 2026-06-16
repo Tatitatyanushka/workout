@@ -62,9 +62,12 @@
   .fab button:active{transform:scale(0.97);}
   .fab button .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
   .nav{position:absolute;left:0;right:0;bottom:0;height:78px;background:rgba(244,243,237,0.92);backdrop-filter:blur(16px);border-top:1px solid var(--line);display:flex;padding:8px 8px 22px;z-index:4;}
-  .nav button{flex:1;border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10.5px;font-weight:500;cursor:pointer;font-family:'Onest';}
+  .nav button{flex:1;border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10.5px;font-weight:500;cursor:pointer;font-family:'Onest';padding-top:6px;}
   .nav button svg{width:22px;height:22px;}
-  .nav button.on{color:var(--ink);}
+  .nav button span{transition:color .15s ease;}
+  .nav button.on{color:var(--accent-deep);}
+  .nav button.on svg{stroke:var(--accent-deep);}
+  .nav button.on span{background:var(--accent);color:var(--accent-deep);font-weight:700;padding:2px 10px;border-radius:8px;}
   .bhead{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
   .bback{width:42px;height:42px;border-radius:14px;background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;flex-shrink:0;}
   .bback svg{width:18px;height:18px;stroke:var(--ink);}
@@ -295,6 +298,10 @@
   .vidcard .vt{flex:1;min-width:0;}
   .vidcard .vt .vn{font-weight:600;font-size:14px;line-height:1.3;padding-right:28px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
   .vidcard .vt .vu{font-size:11px;color:var(--muted);margin-top:3px;}
+  .vidwrap{margin-bottom:14px;}
+  .vidwrap .vidcard{margin-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0;}
+  .viddiary{width:100%;border:none;background:var(--accent);color:var(--accent-deep);font-family:'Onest';font-weight:600;font-size:13px;padding:11px;border-bottom-left-radius:18px;border-bottom-right-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
+  .viddiary svg{width:15px;height:15px;stroke:var(--accent-deep);}
   .vidcard .vdel{position:absolute;right:12px;top:12px;width:26px;height:26px;border-radius:8px;background:var(--paper);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;}
   .vidcard .vdel svg{width:14px;height:14px;stroke:#b06a6a;}
   .addvidbtn{width:100%;border:1px dashed var(--line);background:transparent;border-radius:16px;padding:13px;font-family:'Onest';font-weight:600;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:10px;}
@@ -523,7 +530,9 @@ function tagsHtml(w){var h='';if(w.method&&w.method!=='Без метода')h+='
 function exDone(e){return e.sets.length>0 && e.sets.every(function(s){return s.done;});}
 
 function navBar(){
-  function b(id,lbl,svg){return '<button class="'+(route.name===id?'on':'')+'" onclick="go(\''+id+'\')">'+svg+lbl+'</button>';}
+  var map={calendar:'home',workout:'start',exercise:'start',plan:'start',newWorkout:'start',newExercise:'start',addvideo:'start',saveTpl:'start',movePlan:'start',videoLog:'start',newMeasure:'body',survey:'body',exProgress:'progress'};
+  var active=map[route.name]||route.name;
+  function b(id,lbl,svg){return '<button class="'+(active===id?'on':'')+'" onclick="go(\''+id+'\')">'+svg+'<span>'+lbl+'</span></button>';}
   return b('home','Главная','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M3 11l9-8 9 8M5 9v11h14V9"/></svg>')
     +b('start','Тренировки','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 8.5v7M4 10v3M17.5 8.5v7M20 10v3M6.5 12h11"/></svg>')
     +b('body','Тело','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><circle cx="12" cy="5" r="2.5"/><path d="M12 8v8m0-5l-5 2m5-2l5 2m-5 5l-3 4m3-4l3 4"/></svg>')
@@ -597,7 +606,9 @@ function viewStart(){
     var thumb=id
       ? '<div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/'+id+'/mqdefault.jpg)"><span class="vplay"><svg viewBox="0 0 24 24"><path d="M9 7l9 5-9 5V7z"/></svg></span></div>'
       : '<div class="vthumb noimg"><svg viewBox="0 0 24 24"><path d="M10 8l6 4-6 4V8z"/></svg></div>';
-    return '<a class="vidcard" href="'+esc(v.url)+'" target="_blank" rel="noopener">'+thumb+'<div class="vt"><div class="vn">'+esc(v.title)+'</div><div class="vu">'+esc(host(v.url))+'</div></div><button class="vdel" onclick="event.preventDefault();event.stopPropagation();delVideo(\''+cat+'\','+i+')">'+I.trash+'</button></a>';
+    var card='<a class="vidcard" href="'+esc(v.url)+'" target="_blank" rel="noopener">'+thumb+'<div class="vt"><div class="vn">'+esc(v.title)+'</div><div class="vu">'+esc(host(v.url))+'</div></div><button class="vdel" onclick="event.preventDefault();event.stopPropagation();delVideo(\''+cat+'\','+i+')">'+I.trash+'</button></a>';
+    var diaryBtn='<button class="viddiary" onclick="go(\'videoDiary\',{cat:\''+cat+'\',i:'+i+'})">'+I.plusd+' В дневник тренировок</button>';
+    return '<div class="vidwrap">'+card+diaryBtn+'</div>';
   }
   function videos(cat){
     var arr=(state.videos&&state.videos[cat])||[];
@@ -973,7 +984,7 @@ function render(){
     case 'newWorkout':v=viewNewWorkout();break; case 'workout':v=viewWorkout();break;
     case 'newExercise':v=viewNewExercise();break; case 'exercise':v=viewExercise();break;
     case 'calendar':v=viewCalendar();break; case 'body':v=viewBody();break; case 'newMeasure':v=viewNewMeasure();break;
-    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; case 'pasteData':v=viewPasteData();break; case 'movePlan':v=viewMovePlan();break; default:v=viewHome();
+    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; case 'pasteData':v=viewPasteData();break; case 'movePlan':v=viewMovePlan();break; case 'videoDiary':v=viewVideoDiary();break; default:v=viewHome();
   }
   document.getElementById('screen').innerHTML=v||'';
   document.getElementById('nav').innerHTML=navBar();
@@ -1010,6 +1021,30 @@ async function confirmPlan(pid){
   state.workouts.push(w); await save(); calY=new Date(date+'T00:00:00').getFullYear();calM=new Date(date+'T00:00:00').getMonth(); go('calendar');
 }
 async function completeWorkout(id){var w=findWorkout(id);w.status='done';w.date=todayISO();w.finished=false;await save();render();}
+function getVideo(cat,i){var arr=(state.videos&&state.videos[cat])||[];return arr[i]||null;}
+function viewVideoDiary(){
+  var cat=route.params.cat, i=route.params.i; var v=getVideo(cat,i);
+  if(!v){route={name:'start',params:{}};return viewStart();}
+  return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'start\')">'+I.back+'</button><div><div class="bt">В дневник тренировок</div><div class="bd">'+esc(v.title)+'</div></div></div>'
+    +'<p style="font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:18px;">Добавь это видео-занятие в свой дневник, чтобы оно попало в календарь и в счётчики прогресса на главной.</p>'
+    +'<button class="savebtn" onclick="videoToToday(\''+cat+'\','+i+')">Выполнила сегодня</button>'
+    +'<div class="formgroup" style="margin-top:20px"><label>Или запланировать на дату</label><input class="field" id="vd-date" type="date" value="'+todayISO()+'"></div>'
+    +'<button class="savebtn alt" onclick="videoToPlan(\''+cat+'\','+i+')">Запланировать</button><div style="height:20px"></div></div>';
+}
+function makeVideoWorkout(v,date,status){
+  return {id:uid(),date:date,status:status,name:v.title,block:'Дома · видео',method:'Без метода',phase:'',comment:'',exercises:[],timerStart:null,timerEnd:null,timerAccum:0,finished:status==='done',videoUrl:v.url};
+}
+async function videoToToday(cat,i){
+  var v=getVideo(cat,i); if(!v)return;
+  state.workouts.push(makeVideoWorkout(v,todayISO(),'done'));
+  await save(); alert('Готово! «'+v.title+'» добавлена в дневник за сегодня.'); go('home');
+}
+async function videoToPlan(cat,i){
+  var v=getVideo(cat,i); if(!v)return; var date=document.getElementById('vd-date').value||todayISO();
+  state.workouts.push(makeVideoWorkout(v,date,'planned'));
+  await save(); calY=new Date(date+'T00:00:00').getFullYear(); calM=new Date(date+'T00:00:00').getMonth();
+  alert('Запланировано на '+date+'.'); go('calendar');
+}
 function viewMovePlan(){
   var w=findWorkout(route.params.id); if(!w){route={name:'calendar',params:{}};return viewCalendar();}
   return '<div class="view"><div class="bhead"><button class="bback" onclick="openWorkout(\''+w.id+'\')">'+I.back+'</button><div><div class="bt">Перенести тренировку</div><div class="bd">'+esc(w.name)+'</div></div></div>'
