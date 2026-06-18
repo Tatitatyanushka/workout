@@ -866,7 +866,8 @@ function viewBody(){
     goalBlock='<div class="goalcard"><div class="gt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg> Цель пока не задана</div><div class="gbig">Поставь цель по весу</div><div class="gsub">Укажи старт, цель и дату в анкете.</div><button class="goalbtn" onclick="go(\'survey\')">Задать цель</button></div>';
   }
   var mgrid=cur?'<div class="mgrid"><div class="mcard"><div class="ml">Вес</div><div class="mv">'+cur.weight+' <small>кг</small></div>'+delta('weight','кг')+'</div><div class="mcard"><div class="ml">Грудь</div><div class="mv">'+cur.chest+' <small>см</small></div>'+delta('chest','см')+'</div><div class="mcard"><div class="ml">Талия</div><div class="mv">'+cur.waist+' <small>см</small></div>'+delta('waist','см')+'</div><div class="mcard"><div class="ml">Бёдра</div><div class="mv">'+cur.hips+' <small>см</small></div>'+delta('hips','см')+'</div></div>':'<div class="empty">'+I.bolt+'<p>Сделай первый замер.</p></div>';
-  var phs=state.photos&&state.photos.length?state.photos.slice().reverse().map(function(p){return '<div class="photo" style="background-image:url('+p.data+')"><span>'+esc(p.label)+'</span></div>';}).join(''):'';
+  var phlist=state.photos&&state.photos.length?state.photos.slice().sort(function(a,b){return (b.date||'')<(a.date||'')?-1:((b.date||'')>(a.date||'')?1:0);}):[];
+  var phs=phlist.map(function(p){var cap=[p.date?fmtDate(p.date):'',p.label?esc(p.label):''].filter(Boolean).join(' · ')||'фото';return '<div class="photo" style="background-image:url('+p.data+')"><span>'+cap+'</span></div>';}).join('');
   return '<div class="view"><div class="topbar"><div><div class="hello">Всё обо мне</div><div class="title-xl">Тело</div></div></div>'
     +profileBlock+bmiBlock+goalBlock
     +'<div class="section-h"><h2>Замеры недели</h2><a onclick="go(\'newMeasure\')">+ замер</a></div>'+mgrid
@@ -933,14 +934,18 @@ function viewExProgress(name){
 function viewSettings(){
   return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'home\')">'+I.back+'</button><div><div class="bt">Настройки</div><div class="bd">Анкета и перенос данных</div></div></div>'
     +'<button class="savebtn alt" style="margin-top:0" onclick="go(\'survey\')">Изменить анкету и цель</button>'
+    +'<div class="section-h" style="margin-top:26px"><h2>Перенос текстом (надёжно)</h2></div>'
+    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">На телефоне нажми «Скопировать», отправь текст себе в Избранное в Telegram. На компьютере скопируй его оттуда и нажми «Вставить». Фотографии не переносятся — только тренировки, замеры и прогресс (так текст маленький и не вешает устройство).</p>'
+    +'<button class="savebtn" onclick="copyData()">📋 Скопировать данные</button>'
+    +'<button class="savebtn alt" onclick="go(\'pasteData\')">Вставить данные</button>'
+    +'<div class="section-h" style="margin-top:26px"><h2>Через облако Telegram</h2></div>'
+    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Принудительно подтянуть данные из облака Telegram. Работает, если облако на этом устройстве отвечает (на компьютере бывает капризно).</p>'
+    +'<button class="savebtn alt" onclick="pullFromCloud()">☁️ Обновить из облака</button>'
     +'<div class="section-h" style="margin-top:26px"><h2>Перенос по коду</h2></div>'
-    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Самый простой способ перенести данные между телефоном и компьютером. На одном устройстве нажми «Поделиться» и получи код, на другом — «Получить по коду» и введи его.</p>'
-    +'<button class="savebtn" onclick="shareByCode()">📤 Поделиться по коду</button>'
+    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Через интернет-сервис. Может не работать в некоторых версиях Telegram.</p>'
+    +'<button class="savebtn alt" onclick="shareByCode()">📤 Поделиться по коду</button>'
     +'<button class="savebtn alt" onclick="go(\'getCode\')">📥 Получить по коду</button>'
-    +'<div class="section-h" style="margin-top:26px"><h2>Другие способы</h2></div>'
-    +'<p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;">Перенос через копирование текста или файл — если перенос по коду не сработал.</p>'
-    +'<button class="savebtn alt" onclick="copyData()">Скопировать данные текстом</button>'
-    +'<button class="savebtn alt" onclick="go(\'pasteData\')">Вставить данные текстом</button>'
+    +'<div class="section-h" style="margin-top:26px"><h2>Файл</h2></div>'
     +'<button class="savebtn alt" onclick="exportData()">Выгрузить в файл</button>'
     +'<label class="savebtn alt" style="display:block;text-align:center;cursor:pointer">Загрузить из файла<input type="file" accept="application/json,.json,text/plain" style="display:none" onchange="importData(this)"></label>'
     +'<div style="height:30px"></div></div>';
@@ -991,17 +996,32 @@ function viewPasteData(){
     +'<div style="height:30px"></div></div>';
 }
 async function copyData(){
-  var txt=JSON.stringify(state);
+  var lite={}; for(var k in state){ if(k!=='photos') lite[k]=state[k]; } lite.photos=[];
+  var txt=JSON.stringify(lite);
+  var note=(state.photos&&state.photos.length)?' (фото не вошли — они остаются на исходном устройстве)':'';
   try{
     await navigator.clipboard.writeText(txt);
-    alert('Данные скопированы! Теперь открой Избранное (Saved Messages) в Telegram и вставь их сообщением себе.');
+    alert('Данные скопированы'+note+'. Открой Избранное (Saved Messages) в Telegram и вставь их сообщением себе.');
   }catch(e){
-    // запасной путь: показать поле для ручного копирования
     var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();
-    try{document.execCommand('copy');alert('Данные скопированы! Вставь их себе в Избранное в Telegram.');}
+    try{document.execCommand('copy');alert('Данные скопированы'+note+'. Вставь их себе в Избранное в Telegram.');}
     catch(e2){alert('Не удалось скопировать автоматически. Используй выгрузку в файл.');}
     ta.remove();
   }
+}
+async function pullFromCloud(){
+  if(!CS){alert('На этом устройстве нет доступа к облаку Telegram (например, открыто в обычном браузере). Используй перенос текстом.');return;}
+  try{
+    var raw=await csGet(KEY);
+    var data=parseState(raw);
+    if(!data||!data.workouts){alert('В облаке пока нет данных или оно не ответило. Попробуй ещё раз или используй перенос текстом.');return;}
+    if(!confirm('Подтянуть данные из облака и заменить ими данные на этом устройстве?'))return;
+    if((!data.photos||!data.photos.length)&&state.photos&&state.photos.length){data.photos=state.photos;}
+    data.updatedAt=Date.now(); state=data;
+    if(!state.customExercises)state.customExercises=[];if(!state.templates)state.templates=[];if(!state.measurements)state.measurements=[];if(!state.photos)state.photos=[];if(!state.workouts)state.workouts=[];
+    if(!state.videos)state.videos={zal:[],home:[],noaxial:[]};
+    await save(); alert('Готово! Данные из облака загружены.'); go('home');
+  }catch(e){ alert('Облако не ответило. Используй перенос текстом.'); }
 }
 async function applyPasted(){
   var raw=(document.getElementById('paste-box').value||'').trim();
@@ -1009,6 +1029,7 @@ async function applyPasted(){
   var data; try{data=JSON.parse(raw);}catch(e){alert('Не получилось прочитать данные. Проверь, что скопировал весь текст целиком.');return;}
   if(!data.workouts){alert('Это не похоже на данные приложения.');return;}
   if(!confirm('Заменить данные на этом устройстве вставленными? Текущие данные здесь будут перезаписаны.'))return;
+  if((!data.photos||!data.photos.length)&&state.photos&&state.photos.length){data.photos=state.photos;}
   data.updatedAt=Date.now();
   state=data;
   if(!state.customExercises)state.customExercises=[];if(!state.templates)state.templates=[];if(!state.measurements)state.measurements=[];if(!state.photos)state.photos=[];if(!state.workouts)state.workouts=[];
@@ -1023,7 +1044,7 @@ function render(){
     case 'newWorkout':v=viewNewWorkout();break; case 'workout':v=viewWorkout();break;
     case 'newExercise':v=viewNewExercise();break; case 'exercise':v=viewExercise();break;
     case 'calendar':v=viewCalendar();break; case 'body':v=viewBody();break; case 'newMeasure':v=viewNewMeasure();break;
-    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; case 'pasteData':v=viewPasteData();break; case 'movePlan':v=viewMovePlan();break; case 'videoDiary':v=viewVideoDiary();break; case 'getCode':v=viewGetCode();break; default:v=viewHome();
+    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; case 'pasteData':v=viewPasteData();break; case 'movePlan':v=viewMovePlan();break; case 'videoDiary':v=viewVideoDiary();break; case 'getCode':v=viewGetCode();break; case 'addPhotoMeta':v=viewAddPhotoMeta();break; default:v=viewHome();
   }
   document.getElementById('screen').innerHTML=v||'';
   document.getElementById('nav').innerHTML=navBar();
@@ -1153,7 +1174,26 @@ async function saveSurvey(from){
 }
 async function skipSurvey(){ state.onboarded=true; await save(); go(route.params.from==='onboard'?'home':'body'); }
 
-function addPhoto(input){var f=input.files&&input.files[0];if(!f)return;var img=new Image();var rd=new FileReader();rd.onload=function(){img.onload=function(){var c=document.createElement('canvas');var max=420;var sc=Math.min(1,max/Math.max(img.width,img.height));c.width=img.width*sc;c.height=img.height*sc;c.getContext('2d').drawImage(img,0,0,c.width,c.height);var data=c.toDataURL('image/jpeg',0.7);if(!state.photos)state.photos=[];state.photos.push({label:'Нед '+(state.photos.length+1),data:data});save().then(render);};img.src=rd.result;};rd.readAsDataURL(f);}
+var pendingPhoto=null;
+function addPhoto(input){var f=input.files&&input.files[0];if(!f)return;var img=new Image();var rd=new FileReader();rd.onload=function(){img.onload=function(){var c=document.createElement('canvas');var max=420;var sc=Math.min(1,max/Math.max(img.width,img.height));c.width=img.width*sc;c.height=img.height*sc;c.getContext('2d').drawImage(img,0,0,c.width,c.height);pendingPhoto=c.toDataURL('image/jpeg',0.7);go('addPhotoMeta');};img.src=rd.result;};rd.readAsDataURL(f);}
+function viewAddPhotoMeta(){
+  if(!pendingPhoto){route={name:'body',params:{}};return viewBody();}
+  return '<div class="view"><div class="bhead"><button class="bback" onclick="cancelPhoto()">'+I.back+'</button><div><div class="bt">Новое фото</div><div class="bd">Дата и подпись</div></div></div>'
+    +'<div class="photo" style="background-image:url('+pendingPhoto+');width:100%;height:230px;border-radius:20px;margin-bottom:18px;"></div>'
+    +'<div class="formgroup"><label>Дата</label><input class="field" id="ph-date" type="date" value="'+todayISO()+'"></div>'
+    +'<div class="formgroup"><label>Подпись (по желанию)</label><input class="field" id="ph-label" placeholder="например: анфас, профиль, спина"></div>'
+    +'<button class="savebtn" onclick="savePhoto()">Добавить фото</button><div style="height:20px"></div></div>';
+}
+function cancelPhoto(){pendingPhoto=null;go('body');}
+async function savePhoto(){
+  if(!pendingPhoto){go('body');return;}
+  var date=document.getElementById('ph-date').value||todayISO();
+  var label=(document.getElementById('ph-label').value||'').trim();
+  if(!state.photos)state.photos=[];
+  state.photos.push({date:date,label:label,data:pendingPhoto});
+  pendingPhoto=null;
+  await save(); go('body');
+}
 function exportData(){try{var blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='tanya-trenit-backup.json';document.body.appendChild(a);a.click();a.remove();}catch(e){alert('Не удалось выгрузить');}}
 function importData(input){var f=input.files&&input.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){try{var data=JSON.parse(rd.result);if(!data.workouts){alert('Файл не похож на резервную копию');return;}if(!confirm('Заменить текущие данные данными из файла?'))return;state=data;if(!state.customExercises)state.customExercises=[];if(!state.templates)state.templates=[];save().then(function(){go('home');});}catch(e){alert('Не удалось прочитать файл');}};rd.readAsText(f);}
 
