@@ -168,6 +168,23 @@
   .gprog{height:10px;background:#2c2c22;border-radius:6px;margin-top:16px;overflow:hidden;}
   .gprog i{display:block;height:100%;background:var(--accent);border-radius:6px;}
   .glabels{display:flex;justify-content:space-between;font-size:11px;color:#9a998e;margin-top:8px;}
+  .kbzhu{background:var(--card);border-radius:24px;padding:20px;margin-bottom:18px;box-shadow:var(--shadow);}
+  .kcal{background:var(--accent);border-radius:18px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;}
+  .kcal .kcal-l{font-size:13px;font-weight:600;color:var(--accent-deep);}
+  .kcal .kcal-v{font-family:'Unbounded';font-weight:600;font-size:26px;color:var(--accent-deep);letter-spacing:-0.5px;}
+  .kcal .kcal-v small{font-family:'Onest';font-size:13px;font-weight:600;}
+  .kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+  .kc{background:var(--paper);border-radius:16px;padding:13px 15px;}
+  .kc .kc-l{font-size:12px;color:var(--muted);font-weight:600;}
+  .kc .kc-v{font-family:'Unbounded';font-weight:600;font-size:22px;margin-top:3px;letter-spacing:-0.5px;}
+  .kc .kc-v small{font-family:'Onest';font-size:12px;font-weight:600;color:var(--muted);margin-left:2px;}
+  .kbase{font-size:12px;color:var(--muted);line-height:1.5;margin-top:14px;}
+  .kwhy{width:100%;margin-top:14px;border:none;background:var(--paper);border-radius:14px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;font-family:'Onest';font-weight:600;font-size:13px;color:var(--ink);cursor:pointer;}
+  .kwhy svg{width:18px;height:18px;stroke:var(--muted);transition:transform .2s ease;}
+  .kwhy.open svg{transform:rotate(180deg);}
+  .kexpl{padding:14px 4px 2px;}
+  .kexpl p{font-size:13px;line-height:1.55;margin:0 0 10px;color:var(--ink);}
+  .kexpl p b{font-weight:700;}
   .goalbtn{margin-top:14px;width:100%;border:none;background:var(--accent);color:var(--accent-deep);border-radius:13px;padding:12px;font-family:'Onest';font-weight:700;cursor:pointer;}
   .infogrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
   .infocard{background:var(--card);border-radius:22px;padding:16px 17px;box-shadow:var(--shadow);}
@@ -868,11 +885,46 @@ function viewBody(){
   var mgrid=cur?'<div class="mgrid"><div class="mcard"><div class="ml">Вес</div><div class="mv">'+cur.weight+' <small>кг</small></div>'+delta('weight','кг')+'</div><div class="mcard"><div class="ml">Грудь</div><div class="mv">'+cur.chest+' <small>см</small></div>'+delta('chest','см')+'</div><div class="mcard"><div class="ml">Талия</div><div class="mv">'+cur.waist+' <small>см</small></div>'+delta('waist','см')+'</div><div class="mcard"><div class="ml">Бёдра</div><div class="mv">'+cur.hips+' <small>см</small></div>'+delta('hips','см')+'</div></div>':'<div class="empty">'+I.bolt+'<p>Сделай первый замер.</p></div>';
   var phlist=state.photos&&state.photos.length?state.photos.slice().sort(function(a,b){return (b.date||'')<(a.date||'')?-1:((b.date||'')>(a.date||'')?1:0);}):[];
   var phs=phlist.map(function(p){var cap=[p.date?fmtDate(p.date):'',p.label?esc(p.label):''].filter(Boolean).join(' · ')||'фото';return '<div class="photo" style="background-image:url('+p.data+')"><span>'+cap+'</span></div>';}).join('');
+  var kbzhuBlock=kbzhuCard(cur?cur.weight:(state.goal&&state.goal.startW));
   return '<div class="view"><div class="topbar"><div><div class="hello">Всё обо мне</div><div class="title-xl">Тело</div></div></div>'
-    +profileBlock+bmiBlock+goalBlock
+    +profileBlock+bmiBlock+goalBlock+kbzhuBlock
     +'<div class="section-h"><h2>Замеры недели</h2><a onclick="go(\'newMeasure\')">+ замер</a></div>'+mgrid
     +'<div class="section-h"><h2>Фотоотчёт</h2></div><div class="photos"><label class="photo add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><small>Добавить</small><input type="file" accept="image/*" style="display:none" onchange="addPhoto(this)"></label>'+phs+'</div><div style="height:40px"></div></div>';
 }
+function kbzhuCard(curWeight){
+  var T=curWeight, C=state.goal&&state.goal.goalW;
+  if(!T||!C){
+    return '<div class="section-h"><h2>КБЖУ под твою цель</h2></div>'
+      +'<div class="empty" style="margin-bottom:18px"><p>Чтобы рассчитать КБЖУ, укажи текущий и целевой вес.</p><button class="goalbtn" style="max-width:240px;margin:14px auto 0;background:var(--ink);color:#fff" onclick="go(\''+(state.goal&&state.goal.goalW?'newMeasure':'survey')+'\')">'+(state.goal&&state.goal.goalW?'Добавить замер веса':'Заполнить анкету')+'</button></div>';
+  }
+  var cal=Math.round(T*25);
+  var prot=Math.round(C*2);
+  var fat=Math.round(T*0.7);
+  var fiber=Math.round(cal/1000*14);
+  var carbs=Math.round((cal-T*13)/4);
+  var open=ui.kbzhuOpen;
+  return '<div class="section-h"><h2>КБЖУ под твою цель</h2></div>'
+    +'<div class="kbzhu">'
+    +'<div class="kcal"><div class="kcal-l">Калории в день</div><div class="kcal-v">'+cal+' <small>ккал</small></div></div>'
+    +'<div class="kgrid">'
+      +'<div class="kc"><div class="kc-l">Белки</div><div class="kc-v">'+prot+'<small>г</small></div></div>'
+      +'<div class="kc"><div class="kc-l">Жиры</div><div class="kc-v">'+fat+'<small>г</small></div></div>'
+      +'<div class="kc"><div class="kc-l">Углеводы</div><div class="kc-v">'+(carbs>0?carbs:0)+'<small>г</small></div></div>'
+      +'<div class="kc"><div class="kc-l">Клетчатка</div><div class="kc-v">'+fiber+'<small>г</small></div></div>'
+    +'</div>'
+    +'<div class="kbase">Считается от текущего веса '+T+' кг и цели '+C+' кг. Меняешь вес — пересчитывается само.</div>'
+    +'<button class="kwhy'+(open?' open':'')+'" onclick="toggleKbzhu()"><span>Почему так считаем</span>'+I.chev+'</button>'
+    +(open?'<div class="kexpl">'
+      +'<p><b>Калории = вес × 25.</b> Твоя суточная норма с заложенным дефицитом, который мягко запускает жиросжигание — без жёсткого голода.</p>'
+      +'<p><b>Белки = целевой вес × 2.</b> Минимум белка (от веса, к которому стремишься), чтобы сохранить мышцы и лучше насыщаться.</p>'
+      +'<p><b>Жиры = вес × 0,7.</b> Максимум жиров — этого достаточно и для гормонального баланса, и как строительный материал.</p>'
+      +'<p><b>Клетчатка = калории ÷ 1000 × 14.</b> Для метаболического здоровья и работы кишечника.</p>'
+      +'<p><b>Углеводы = (калории − вес × 13) ÷ 4.</b> То, что остаётся на энергию для тренировок и работы мозга.</p>'
+      +'<p style="color:var(--muted)">Это ориентир по конкретной методике, а не медицинское предписание. При проблемах со здоровьем сверься со специалистом.</p>'
+      +'</div>':'')
+    +'</div>';
+}
+function toggleKbzhu(){ui.kbzhuOpen=!ui.kbzhuOpen;render();}
 function viewNewMeasure(){
   return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'body\')">'+I.back+'</button><div><div class="bt">Замер недели</div><div class="bd">'+fmtDate(todayISO())+'</div></div></div>'
     +'<div class="twocol"><div class="formgroup"><label>Вес, кг</label><input class="field" id="m-w" type="number" inputmode="decimal" placeholder="64.2"></div><div class="formgroup"><label>Грудь, см</label><input class="field" id="m-c" type="number" inputmode="decimal" placeholder="92"></div></div>'
