@@ -511,8 +511,8 @@ var state=null, route={name:'home',params:{}};
 var ui={histOpen:false, progOpen:false};
 var now=new Date(); var calY=now.getFullYear(), calM=now.getMonth();
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
-function todayISO(){return new Date().toISOString().slice(0,10);}
-function dOff(n){var d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function todayISO(){var d=new Date();var m=d.getMonth()+1,day=d.getDate();return d.getFullYear()+'-'+(m<10?'0'+m:m)+'-'+(day<10?'0'+day:day);}
+function dOff(n){var d=new Date();d.setDate(d.getDate()+n);var m=d.getMonth()+1,day=d.getDate();return d.getFullYear()+'-'+(m<10?'0'+m:m)+'-'+(day<10?'0'+day:day);}
 function fmtDate(iso){var mo=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];var d=new Date(iso+'T00:00:00');return d.getDate()+' '+mo[d.getMonth()];}
 function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function fmtMS(s){var m=Math.floor(s/60),x=s%60;return (m<10?'0':'')+m+':'+(x<10?'0':'')+x;}
@@ -915,8 +915,8 @@ function viewCalendar(){
   for(var d=1;d<=days;d++){var cls='cell'+(done[d]?' done':(miss[d]?' missed':(plan[d]?' plan':'')))+(d===todayD?' today':'');var clickable=dayId[d]?(' onclick="openDay(\''+dayId[d]+'\')" style="cursor:pointer"'):'';cells+='<div class="'+cls+'"'+clickable+'><span class="num">'+d+'</span></div>';}
   var dow=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(function(x){return '<div class="dow">'+x+'</div>';}).join('');
   var monthN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-  var planned=state.workouts.filter(function(w){return w.status==='planned';}).sort(function(a,b){return a.date<b.date?-1:1;});
-  var upHtml=planned.length?planned.map(function(w){var m=isMissed(w);return '<div class="wcard" onclick="openWorkout(\''+w.id+'\')"><button class="cardtrash" onclick="event.stopPropagation();delWorkout(\''+w.id+'\')">'+I.trash+'</button><div class="date">'+fmtDate(w.date)+(m?' · пропущено':' · запланировано')+'</div><div class="wname">'+esc(w.name)+'</div><div class="meta">'+tagsHtml(w)+'<span class="ctag '+(m?'miss':'plan')+'">'+(m?'пропущено':'план')+'</span></div></div>';}).join(''):'<div class="empty" style="padding:22px"><p>Нет запланированных тренировок.<br>Добавь из «Выбрать тренировку».</p></div>';
+  var planned=state.workouts.filter(function(w){return w.status==='planned'&&!isMissed(w);}).sort(function(a,b){return a.date<b.date?-1:1;});
+  var upHtml=planned.length?planned.map(function(w){return '<div class="wcard" onclick="openWorkout(\''+w.id+'\')"><button class="cardtrash" onclick="event.stopPropagation();delWorkout(\''+w.id+'\')">'+I.trash+'</button><div class="date">'+fmtDate(w.date)+' · запланировано</div><div class="wname">'+esc(w.name)+'</div><div class="meta">'+tagsHtml(w)+'<span class="ctag plan">план</span></div></div>';}).join(''):'<div class="empty" style="padding:22px"><p>Нет запланированных тренировок.<br>Добавь из «Выбрать тренировку».</p></div>';
   return '<div class="view"><div class="topbar"><div><div class="hello">Расписание</div><div class="title-xl">Календарь</div></div></div>'
     +'<div class="calcard"><div class="calhead"><div class="cm">'+monthN[calM]+' '+calY+'</div><div class="cnav"><button onclick="calShift(-1)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg></button><button onclick="calShift(1)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button></div></div>'
     +'<div class="calgrid">'+dow+cells+'</div><div class="callegend"><div><span class="d1"></span> Выполнено</div><div><span class="d2"></span> План</div><div><span class="d4"></span> Пропущено</div></div></div>'
@@ -1255,6 +1255,7 @@ function viewProg2Spread(){
     +'<div class="formgroup"><label>Начать с даты</label><input class="field" id="spread-date" type="date" value="'+todayISO()+'"></div>'
     +'<button class="savebtn" onclick="doProg2Spread()">Разнести по календарю</button><div style="height:20px"></div></div>';
 }
+function isoLocal(d){var m=d.getMonth()+1,day=d.getDate();return d.getFullYear()+'-'+(m<10?'0'+m:m)+'-'+(day<10?'0'+day:day);}
 function nextDow(from,dow){var d=new Date(from+'T00:00:00');var cur=d.getDay()===0?7:d.getDay();var add=(dow-cur+7)%7;d.setDate(d.getDate()+add);return d;}
 async function doProg2Spread(){
   var start=document.getElementById('spread-date').value||todayISO();
@@ -1262,7 +1263,7 @@ async function doProg2Spread(){
   for(var week=0;week<4;week++){
     PROG2.forEach(function(b){
       var base=nextDow(start,b.dow); base.setDate(base.getDate()+week*7);
-      var iso=base.toISOString().slice(0,10);
+      var iso=isoLocal(base);
       var w=makeProg2Workout(b,week,iso,'planned');
       state.workouts.push(w); count++;
     });
