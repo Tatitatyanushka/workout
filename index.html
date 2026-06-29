@@ -110,7 +110,8 @@
   .pr-banner .l svg{width:15px;height:15px;color:var(--accent);}
   .pr-banner .v{font-family:'Unbounded';font-weight:600;font-size:26px;margin-top:6px;letter-spacing:-0.5px;}
   .pr-banner .v span{color:var(--accent);}
-  .setrow{background:var(--card);border-radius:18px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);}
+  .setrow{background:var(--card);border-radius:18px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);transition:background .15s ease,border-color .15s ease;border:1.5px solid transparent;}
+  .setrow.done{background:var(--accent-soft);border-color:var(--accent);}
   .setrow .check{width:30px;height:30px;border-radius:9px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:#fff;}
   .setrow .check.on{background:var(--accent);border-color:var(--accent);}
   .setrow .check svg{width:16px;height:16px;stroke:var(--accent-deep);opacity:0;}
@@ -268,6 +269,23 @@
   .progtext .ptt{font-family:'Unbounded';font-weight:500;font-size:14px;color:var(--ink);margin-bottom:8px;}
   .progtext .phpills{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;}
   .progtext .phpills span{background:var(--accent-soft);color:var(--accent-deep);font-weight:600;font-size:11px;padding:5px 9px;border-radius:9px;}
+  .spreadbtn{width:100%;border:none;background:var(--ink);color:#fff;border-radius:16px;padding:14px;font-family:'Onest';font-weight:600;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;}
+  .spreadbtn svg{width:17px;height:17px;stroke:var(--accent);}
+  .weeksw{display:flex;gap:7px;margin-bottom:14px;}
+  .weeksw button{flex:1;border:none;background:var(--card);border-radius:14px;padding:9px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;box-shadow:var(--shadow);font-family:'Onest';}
+  .weeksw button .wl{font-size:9px;color:var(--muted);font-weight:600;}
+  .weeksw button .wn{font-family:'Unbounded';font-weight:600;font-size:17px;color:var(--ink);}
+  .weeksw button.on{background:var(--accent);}
+  .weeksw button.on .wl{color:#586800;}
+  .weeksw button.on .wn{color:var(--accent-deep);}
+  .p2card{background:var(--card);border-radius:22px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);}
+  .p2card .p2h{font-family:'Unbounded';font-weight:500;font-size:16px;margin-bottom:10px;}
+  .p2card .p2h span{display:block;font-family:'Onest';font-weight:500;font-size:11px;color:var(--muted);margin-top:2px;}
+  .p2row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line);}
+  .p2row .p2n{font-size:13px;line-height:1.3;flex:1;}
+  .p2row .p2s{flex-shrink:0;background:var(--accent-soft);color:var(--accent-deep);font-family:'Unbounded';font-weight:600;font-size:14px;padding:6px 11px;border-radius:10px;}
+  .p2fin{display:flex;align-items:center;gap:7px;background:var(--accent-deep);color:#fff;border-radius:12px;padding:10px 13px;margin-top:12px;font-size:12px;font-weight:600;}
+  .p2fin svg{width:15px;height:15px;stroke:var(--accent);flex-shrink:0;}
   .tplcard{background:var(--card);border-radius:22px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);position:relative;}
   .tplcard .tn{font-family:'Unbounded';font-weight:500;font-size:16px;padding-right:50px;}
   .tplcard .tsub{font-size:12px;color:var(--muted);margin-top:3px;padding-right:50px;}
@@ -457,6 +475,37 @@ var PRESETS=[
 {id:'b3',name:'Блок 3',sub:'Ноги и плечи',method:'Круговая',phase:'20 повт (нед 1–2) · 15 (нед 3–4)',ex:['Жим платформы ногами','Разведение гантелей через стороны','Мёртвая тяга','Тяга верхнего блока к подбородку','Подъём на носки сидя','Складка (книжка)']},
 {id:'b4',name:'Блок 4',sub:'Спина, грудь, руки',method:'Круговая',phase:'20 повт (нед 1–2) · 15 (нед 3–4)',ex:['Тяга вертикального блока узким хватом','Жим лёжа узким хватом','Тяга горизонтального блока','Отжимания от пола','Отжимания на брусьях','Подъём гантелей на бицепс']}
 ];
+// Программа 2-го месяца ФМ4М (женская). dow: день недели (1=Пн..6=Сб). Каждое упражнение: схемы по 4 неделям.
+var PROG2=[
+{id:'m2b1',name:'Блок 1',sub:'Понедельник · спина, руки',dow:1,ex:[
+  {name:'Тяга штанги в наклоне обратным хватом',w:['4×15','2+2 (4×3)','3+2 (4×2)','2+2 (4×4)'],note:'Кластеры: мини-подходы с отдыхом 10–15 сек. В скобках — мини-подходы × повторы.'},
+  {name:'Жим штанги узким хватом',w:['4×12','5×6','4×15','5×8']},
+  {name:'Подтягивания нейтральным (параллельным) хватом',w:['4×max','5×max','4×max','5×max'],note:'>15 повт — добавляй вес (+10/+15/+20 кг). В гравитроне для девушек — наоборот, уменьшай противовес.'},
+  {name:'Разгибание гантели в наклоне (к.р.о)',w:['3×15','4×10','3×12','4×8']},
+  {name:'Подъём штанги на бицепс',w:['4×10','3×15','5×8','4×12']}
+],fin:'Подтягивание на низкой перекладине — 50 повторов'},
+{id:'m2b2',name:'Блок 2',sub:'Вторник · ноги, плечи',dow:2,ex:[
+  {name:'Тазово-доминантные приседания (СУММО)',w:['2+2 (4×3)','2+2 (3×4)','4×15','3+2 (4×2)'],note:'Кластеры: мини-подходы с отдыхом 10–15 сек.'},
+  {name:'Жим гантелей под углом 30°',w:['4×12','5×8','3×15','4×10']},
+  {name:'Сгибание ног',w:['3×15','4×12','5×8','4×10']},
+  {name:'Армейский жим штанги стоя',w:['4×15','4×12','3×20','5×8']},
+  {name:'Скручивания на полу',w:['3×max','4×max','3×max','4×max']}
+],fin:'Кубковое приседание — 50 повторов'},
+{id:'m2b3',name:'Блок 3',sub:'Четверг · спина, руки, плечи',dow:4,ex:[
+  {name:'Подтягивания обратным хватом',w:['4×(max×3)','4×(max×2)','4×(max×4)','4×(max×2)'],note:'>15 повт — добавляй вес (+10/+15/+20 кг). В гравитроне для девушек — наоборот, уменьшай противовес.'},
+  {name:'Отжимания на брусьях / от скамьи с обратной постановкой рук',w:['4×max','5×max','4×max','5×max'],note:'>15 повт — добавляй вес (+10/+15/+20 кг).'},
+  {name:'Тяга горизонтального блока к поясу / тяга хамера',w:['4×12','4×15','3×20','5×8']},
+  {name:'Французский жим лёжа или сидя',w:['4×15','5×10','3×20','5×8']},
+  {name:'Разведение гантелей через стороны',w:['4×15','5×12','4×15','3×20']}
+],fin:'Протяжка у блока к подбородку — 50 повторов'},
+{id:'m2b4',name:'Блок 4',sub:'Суббота · ноги',dow:6,ex:[
+  {name:'Выпады',w:['3×15','4×12','5×8','4×10']},
+  {name:'Жим штанги лёжа',w:['2+2 (4×3)','2+2 (3×4)','4×15','3+2 (4×2)'],note:'Кластеры: мини-подходы с отдыхом 10–15 сек.'},
+  {name:'Жим платформы ногами (к.н.о)',w:['4×15','4×12','3×20','5×8']},
+  {name:'Тяга штанги к подбородку',w:['4×12','5×8','3×15','4×10']},
+  {name:'Ягодичный мостик',w:['4×15','5×10','4×15','3×20']}
+],fin:'Отжимание с ногами на скамье — 50 повторов'}
+];
 
 var state=null, route={name:'home',params:{}};
 var ui={histOpen:false, progOpen:false};
@@ -603,6 +652,28 @@ function viewHome(){
 var TRAIN_CAT='zal';
 function setCat(c){TRAIN_CAT=c;render();}
 function viewStart(){
+  function prog2Section(){
+    if(!ui.prog2Open){
+      return '<button class="disclosure" onclick="toggleProg2()"><span class="dl">Программа на 2 месяц ФМ4М</span><span class="dc">4 блока '+I.chev+'</span></button>';
+    }
+    var wi=PROG2_WEEK-1;
+    var weekBtns='<div class="weeksw">'+[1,2,3,4].map(function(n){return '<button class="'+(PROG2_WEEK===n?'on':'')+'" onclick="setProg2Week('+n+')"><span class="wl">Неделя</span><span class="wn">'+n+'</span></button>';}).join('')+'</div>';
+    var blocks=PROG2.map(function(b){
+      var rows=b.ex.map(function(x){return '<div class="p2row"><div class="p2n">'+esc(x.name)+'</div><div class="p2s">'+esc(x.w[wi]||x.w[0])+'</div></div>';}).join('');
+      return '<div class="p2card"><div class="p2h">'+esc(b.name)+'<span>'+esc(b.sub)+'</span></div>'+rows
+        +'<div class="p2fin">'+I.bolt+' '+esc(b.fin)+'</div>'
+        +'<div class="tplbtns"><button class="gobtn" onclick="prog2StartNow(\''+b.id+'\')">Начать сейчас</button><button class="plbtn" onclick="prog2Plan(\''+b.id+'\')">Запланировать</button></div></div>';
+    }).join('');
+    return '<button class="disclosure open" onclick="toggleProg2()"><span class="dl">Программа на 2 месяц ФМ4М</span><span class="dc">свернуть '+I.chev+'</span></button>'
+      +'<div class="progtext"><div class="ptt">Программа на 2 месяц ФМ4М</div>'
+      +'<p>4 тренировки в неделю: ПН — Блок 1, ВТ — Блок 2, ЧТ — Блок 3, СБ — Блок 4. Прогрессия по 4 неделям — выбери неделю, и схемы подставятся.</p>'
+      +'<p style="margin-top:7px;"><b>Кластеры</b> (напр. «2+2 (4×3)») — мини-подходы с отдыхом 10–15 сек между ними; в скобках мини-подходы × повторы, первая цифра — сколько таких подходов.</p>'
+      +'<p style="margin-top:7px;"><b>Подтягивания:</b> если делаешь больше 15 повторов — добавляй вес (+10/+15/+20 кг). В гравитроне для девушек наоборот — уменьшай противовес.</p>'
+      +'<p style="margin-top:7px;"><b>Финишеры на 50 повторов:</b> либо 25 + 25 (пауза 30 сек), либо отдых-пауза — максимум повторов, затем 10 вдохов-выдохов и снова максимум, пока не наберёшь 50.</p></div>'
+      +'<button class="spreadbtn" onclick="go(\'prog2Spread\')">'+I.cal+' Разнести всю программу по датам</button>'
+      +weekBtns
+      +blocks;
+  }
   function presetCard(t){
     var exlist=t.ex.slice(0,3).join(', ')+(t.ex.length>3?' и ещё '+(t.ex.length-3):'');
     return '<div class="tplcard"><div class="tn">'+esc(t.name)+'</div><div class="tsub">'+esc(t.sub||'')+(t.method&&t.method!=='Без метода'?' · '+esc(t.method):'')+'</div>'
@@ -661,6 +732,7 @@ function viewStart(){
       :'';
     body='<button class="disclosure'+(ui.progOpen?' open':'')+'" onclick="toggleProg()"><span class="dl">Программа на 1 месяц ФМ4М</span><span class="dc">'+(ui.progOpen?'свернуть':'4 блока')+' '+I.chev+'</span></button>'
       +programInner
+      +prog2Section()
       +mineFor('zal')
       +'<div class="cathead">'+I.play+' Видео для зала</div>'+videos('zal');
   } else {
@@ -782,7 +854,7 @@ function viewExercise(){
         +'<button class="savesm" onclick="saveSetEdit(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.check+'</button></div>';
     }
     var isBest=best&&s.w===best.w&&s.r===best.r;
-    return '<div class="setrow"><div class="check'+(s.done?' on':'')+'" onclick="toggleSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.check+'</div><div class="idx">'+(i+1)+'</div><div class="vals"><span class="w">'+s.w+'</span><span class="x">кг ×</span><span class="r">'+s.r+'</span></div>'+(isBest?'<span class="best">рекорд</span>':'')
+    return '<div class="setrow'+(s.done?' done':'')+'"><div class="check'+(s.done?' on':'')+'" onclick="toggleSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.check+'</div><div class="idx">'+(i+1)+'</div><div class="vals"><span class="w">'+s.w+'</span><span class="x">кг ×</span><span class="r">'+s.r+'</span></div>'+(isBest?'<span class="best">рекорд</span>':'')
       +'<button class="del" onclick="editSet('+i+')">'+I.pencil+'</button><button class="del" onclick="delSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.trash+'</button></div>';
   }).join('');
   var lastCur = e.sets.length ? e.sets[e.sets.length-1] : null;
@@ -1096,7 +1168,7 @@ function render(){
     case 'newWorkout':v=viewNewWorkout();break; case 'workout':v=viewWorkout();break;
     case 'newExercise':v=viewNewExercise();break; case 'exercise':v=viewExercise();break;
     case 'calendar':v=viewCalendar();break; case 'body':v=viewBody();break; case 'newMeasure':v=viewNewMeasure();break;
-    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; case 'pasteData':v=viewPasteData();break; case 'movePlan':v=viewMovePlan();break; case 'videoDiary':v=viewVideoDiary();break; case 'getCode':v=viewGetCode();break; case 'addPhotoMeta':v=viewAddPhotoMeta();break; default:v=viewHome();
+    case 'survey':v=viewSurvey();break; case 'progress':v=viewProgress();break; case 'settings':v=viewSettings();break; case 'addvideo':v=viewAddVideo();break; case 'saveTpl':v=viewSaveTpl();break; case 'pasteData':v=viewPasteData();break; case 'movePlan':v=viewMovePlan();break; case 'videoDiary':v=viewVideoDiary();break; case 'getCode':v=viewGetCode();break; case 'addPhotoMeta':v=viewAddPhotoMeta();break; case 'prog2Plan':v=viewProg2Plan();break; case 'prog2Spread':v=viewProg2Spread();break; default:v=viewHome();
   }
   document.getElementById('screen').innerHTML=v||'';
   document.getElementById('nav').innerHTML=navBar();
@@ -1109,6 +1181,7 @@ function render(){
 function go(name,params){route={name:name,params:params||{}};render();}
 function toggleHist(){ui.histOpen=!ui.histOpen;render();}
 function toggleProg(){ui.progOpen=!ui.progOpen;render();}
+function toggleProg2(){ui.prog2Open=!ui.prog2Open;render();}
 function toggleProgList(){ui.progOpenList=ui.progOpenList===false?true:false;render();}
 function toggleRestPresets(){var el=document.getElementById('restpresets');if(el)el.classList.toggle('open');}
 
@@ -1133,6 +1206,72 @@ async function confirmPlan(pid){
   state.workouts.push(w); await save(); calY=new Date(date+'T00:00:00').getFullYear();calM=new Date(date+'T00:00:00').getMonth(); go('calendar');
 }
 async function completeWorkout(id){var w=findWorkout(id);w.status='done';w.date=todayISO();w.finished=false;await save();render();}
+
+// ===== Программа 2-го месяца =====
+var PROG2_WEEK=1; // выбранная неделя на экране
+function setProg2Week(n){PROG2_WEEK=n;render();}
+function prog2Block(id){return PROG2.find(function(b){return b.id===id;});}
+// Разбираем схему недели в подходы: "4×15" -> 4 подхода по 15; "4×max" -> 4 по max; кластеры берём из скобок
+function schemeToSets(scheme){
+  var s=scheme.replace(/\s/g,'');
+  var inner=s.match(/\(([^)]+)\)/); // кластер в скобках, напр (4×3) или (max×3)
+  var core=inner?inner[1]:s;
+  var m=core.match(/^(\d+)[×x*](\d+|max)/i);
+  if(!m){return [{w:'',r:scheme,done:false,plan:true}];}
+  var sets=parseInt(m[1],10)||1;
+  var reps=m[2];
+  var arr=[]; for(var i=0;i<sets;i++){arr.push({w:'',r:(/max/i.test(reps)?'max':parseInt(reps,10)),done:false,plan:true});}
+  return arr;
+}
+function makeProg2Exercises(block,weekIdx){
+  return block.ex.map(function(x){
+    var scheme=x.w[weekIdx]||x.w[0];
+    var note=(x.note?x.note+' ':'')+'План недели '+(weekIdx+1)+': '+scheme;
+    return {id:uid(),name:x.name,note:note,scheme:scheme,sets:schemeToSets(scheme)};
+  });
+}
+function makeProg2Workout(block,weekIdx,date,status){
+  return {id:uid(),date:date,status:status,name:block.name+' · нед '+(weekIdx+1),block:'ФМ4М · 2 месяц · '+block.sub,method:'Круговая',phase:'Неделя '+(weekIdx+1),comment:'',
+    exercises:makeProg2Exercises(block,weekIdx),fin:block.fin,timerStart:null,timerEnd:null,timerAccum:0,finished:false};
+}
+async function prog2StartNow(id){var b=prog2Block(id);if(!b)return;var w=makeProg2Workout(b,PROG2_WEEK-1,todayISO(),'done');state.workouts.push(w);await save();openWorkout(w.id);}
+function prog2Plan(id){go('prog2Plan',{id:id});}
+function viewProg2Plan(){
+  var b=prog2Block(route.params.id); if(!b){route={name:'start',params:{}};return viewStart();}
+  return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'start\')">'+I.back+'</button><div><div class="bt">Запланировать</div><div class="bd">'+esc(b.name)+' · неделя '+PROG2_WEEK+'</div></div></div>'
+    +'<p style="font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:18px;">Выбери дату — тренировка встанет в план с готовыми подходами по схеме недели '+PROG2_WEEK+'. Останется вписать вес.</p>'
+    +'<div class="formgroup"><label>Дата тренировки</label><input class="field" id="p2-date" type="date" value="'+todayISO()+'"></div>'
+    +'<button class="savebtn" onclick="doProg2Plan(\''+b.id+'\')">Добавить в календарь</button><div style="height:20px"></div></div>';
+}
+async function doProg2Plan(id){
+  var b=prog2Block(id); if(!b)return; var date=document.getElementById('p2-date').value||todayISO();
+  var w=makeProg2Workout(b,PROG2_WEEK-1,date,'planned'); state.workouts.push(w); await save();
+  calY=new Date(date+'T00:00:00').getFullYear(); calM=new Date(date+'T00:00:00').getMonth(); go('calendar');
+}
+// Авторазнос всей программы на 4 недели по дням недели (Пн/Вт/Чт/Сб)
+function viewProg2Spread(){
+  return '<div class="view"><div class="bhead"><button class="bback" onclick="go(\'start\')">'+I.back+'</button><div><div class="bt">Разнести программу</div><div class="bd">2-й месяц · 4 недели</div></div></div>'
+    +'<p style="font-size:14px;color:var(--muted);line-height:1.55;margin-bottom:18px;">Приложение расставит все 16 тренировок на 4 недели вперёд по дням: Пн — Блок 1, Вт — Блок 2, Чт — Блок 3, Сб — Блок 4. В каждой уже будут подходы и повторы по схеме своей недели — останется вписать вес.</p>'
+    +'<div class="formgroup"><label>Начать с даты</label><input class="field" id="spread-date" type="date" value="'+todayISO()+'"></div>'
+    +'<button class="savebtn" onclick="doProg2Spread()">Разнести по календарю</button><div style="height:20px"></div></div>';
+}
+function nextDow(from,dow){var d=new Date(from+'T00:00:00');var cur=d.getDay()===0?7:d.getDay();var add=(dow-cur+7)%7;d.setDate(d.getDate()+add);return d;}
+async function doProg2Spread(){
+  var start=document.getElementById('spread-date').value||todayISO();
+  var count=0;
+  for(var week=0;week<4;week++){
+    PROG2.forEach(function(b){
+      var base=nextDow(start,b.dow); base.setDate(base.getDate()+week*7);
+      var iso=base.toISOString().slice(0,10);
+      var w=makeProg2Workout(b,week,iso,'planned');
+      state.workouts.push(w); count++;
+    });
+  }
+  await save();
+  var sd=new Date(start+'T00:00:00'); calY=sd.getFullYear(); calM=sd.getMonth();
+  alert('Готово! Разнесено '+count+' тренировок на 4 недели. Открывай день, жми «Начать» и вписывай вес.');
+  go('calendar');
+}
 function getVideo(cat,i){var arr=(state.videos&&state.videos[cat])||[];return arr[i]||null;}
 function viewVideoDiary(){
   var cat=route.params.cat, i=route.params.i; var v=getVideo(cat,i);
