@@ -519,7 +519,7 @@ function todayISO(){var d=new Date();var m=d.getMonth()+1,day=d.getDate();return
 function dOff(n){var d=new Date();d.setDate(d.getDate()+n);var m=d.getMonth()+1,day=d.getDate();return d.getFullYear()+'-'+(m<10?'0'+m:m)+'-'+(day<10?'0'+day:day);}
 function fmtDate(iso){var mo=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];var d=new Date(iso+'T00:00:00');return d.getDate()+' '+mo[d.getMonth()];}
 function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-function fmtMS(s){var m=Math.floor(s/60),x=s%60;return (m<10?'0':'')+m+':'+(x<10?'0':'')+x;}
+function fmtMS(s){s=Math.max(0,Math.floor(s));var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),x=s%60;if(h>0)return h+':'+(m<10?'0':'')+m+':'+(x<10?'0':'')+x;return (m<10?'0':'')+m+':'+(x<10?'0':'')+x;}
 
 function seed(){
   return { profile:null, goal:null, measurements:[], photos:[], templates:[], customExercises:[], workouts:[], videos:{zal:[],home:[],noaxial:[]} };
@@ -794,11 +794,14 @@ function viewNewWorkout(){
 function viewWorkout(){
   var w=findWorkout(route.params.id); if(!w){route={name:'home',params:{}};return viewHome();}
   var planned=w.status==='planned';
-  var running=w.timerStart && !w.timerEnd;
+  var validStart=w.timerStart&&w.timerStart>1e12; // корректная метка времени в мс
+  if(w.timerStart&&!validStart){w.timerStart=null;save();} // сбрасываем битую метку и сохраняем
+  var running=validStart && !w.timerEnd;
   var elapsed=0;
-  if(w.timerStart&&w.timerEnd) elapsed=w.timerEnd-w.timerStart;
+  if(validStart&&w.timerEnd) elapsed=Math.floor((w.timerEnd-w.timerStart)/1000)+(w.timerAccum||0);
   else if(running) elapsed=Math.floor((Date.now()-w.timerStart)/1000)+(w.timerAccum||0);
   else elapsed=w.timerAccum||0;
+  if(elapsed<0||elapsed>360000)elapsed=w.timerAccum||0; // защита от абсурдных значений (>100ч)
   var timerBtn = running
     ? '<button class="stop" onclick="toggleTimer(\''+w.id+'\')">Завершить тренировку</button>'
     : (w.timerEnd ? '<button class="go" onclick="toggleTimer(\''+w.id+'\')">Возобновить</button>' : '<button class="go" onclick="toggleTimer(\''+w.id+'\')">Начать тренировку</button>');
@@ -1434,10 +1437,11 @@ function manageTimerTick(){
   if(wTick){clearInterval(wTick);wTick=null;}
   if(route.name==='workout'){
     var w=findWorkout(route.params.id);
-    if(w&&w.timerStart&&!w.timerEnd){
+    if(w&&w.timerStart&&w.timerStart>1e12&&!w.timerEnd){
       wTick=setInterval(function(){
         var el=document.getElementById('wtimer'); if(!el){clearInterval(wTick);wTick=null;return;}
         var sec=Math.floor((Date.now()-w.timerStart)/1000)+(w.timerAccum||0);
+        if(sec<0||sec>360000)sec=0;
         el.textContent=fmtMS(sec);
       },1000);
     }
