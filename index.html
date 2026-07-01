@@ -112,6 +112,10 @@
   .pr-banner .v span{color:var(--accent);}
   .setrow{background:var(--card);border-radius:18px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);transition:background .15s ease,border-color .15s ease;border:1.5px solid transparent;}
   .setrow.done{background:var(--accent-soft);border-color:var(--accent);}
+  .setrow .setw{width:64px;border:1.5px solid var(--accent);background:var(--card);border-radius:10px;padding:8px 10px;font-family:'Onest';font-weight:600;font-size:15px;color:var(--ink);outline:none;text-align:center;}
+  .setrow .setw::placeholder{color:var(--muted);font-weight:500;}
+  .setrow .vals{display:flex;align-items:baseline;gap:5px;flex:1;white-space:nowrap;}
+  .setrow .x{white-space:nowrap;}
   .setrow .check{width:30px;height:30px;border-radius:9px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:#fff;}
   .setrow .check.on{background:var(--accent);border-color:var(--accent);}
   .setrow .check svg{width:16px;height:16px;stroke:var(--accent-deep);opacity:0;}
@@ -854,6 +858,12 @@ function viewExercise(){
         +'<button class="savesm" onclick="saveSetEdit(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.check+'</button></div>';
     }
     var isBest=best&&s.w===best.w&&s.r===best.r;
+    var noW=(s.w===''||s.w===null||s.w===undefined);
+    if(noW){
+      return '<div class="setrow plan'+(s.done?' done':'')+'"><div class="check'+(s.done?' on':'')+'" onclick="toggleSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.check+'</div><div class="idx">'+(i+1)+'</div>'
+        +'<input class="setw" type="number" inputmode="decimal" placeholder="кг" onchange="setPlanWeight(\''+w.id+'\',\''+e.id+'\','+i+',this.value)"><span class="x">кг ×</span><span class="r">'+s.r+'</span>'
+        +'<button class="del" onclick="delSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.trash+'</button></div>';
+    }
     return '<div class="setrow'+(s.done?' done':'')+'"><div class="check'+(s.done?' on':'')+'" onclick="toggleSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.check+'</div><div class="idx">'+(i+1)+'</div><div class="vals"><span class="w">'+s.w+'</span><span class="x">кг ×</span><span class="r">'+s.r+'</span></div>'+(isBest?'<span class="best">рекорд</span>':'')
       +'<button class="del" onclick="editSet('+i+')">'+I.pencil+'</button><button class="del" onclick="delSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.trash+'</button></div>';
   }).join('');
@@ -880,9 +890,20 @@ function viewExercise(){
     +'<div style="height:30px"></div></div>';
 }
 function editSet(i){ui.editSet=i;render();}
+async function setPlanWeight(wid,exId,i,val){
+  var wv=parseFloat(val); if(isNaN(wv))return;
+  var w=findWorkout(wid);var e=w.exercises.find(function(x){return x.id===exId;});
+  e.sets[i].w=wv; e.sets[i].plan=false; await save(); render();
+}
 async function saveSetEdit(wid,exId,i){
-  var wv=parseFloat(document.getElementById('ed-w').value),rv=parseInt(document.getElementById('ed-r').value,10);
-  if(!isNaN(wv)&&!isNaN(rv)){var w=findWorkout(wid);var e=w.exercises.find(function(x){return x.id===exId;});e.sets[i].w=wv;e.sets[i].r=rv;await save();}
+  var wv=parseFloat(document.getElementById('ed-w').value);
+  var rvRaw=document.getElementById('ed-r').value, rv=parseInt(rvRaw,10);
+  if(!isNaN(wv)){
+    var w=findWorkout(wid);var e=w.exercises.find(function(x){return x.id===exId;});
+    e.sets[i].w=wv;
+    if(!isNaN(rv))e.sets[i].r=rv;
+    e.sets[i].plan=false; await save();
+  }
   ui.editSet=null;render();
 }
 function swipeExercise(dir){
@@ -1214,13 +1235,21 @@ function prog2Block(id){return PROG2.find(function(b){return b.id===id;});}
 // Разбираем схему недели в подходы: "4×15" -> 4 подхода по 15; "4×max" -> 4 по max; кластеры берём из скобок
 function schemeToSets(scheme){
   var s=scheme.replace(/\s/g,'');
-  var inner=s.match(/\(([^)]+)\)/); // кластер в скобках, напр (4×3) или (max×3)
-  var core=inner?inner[1]:s;
-  var m=core.match(/^(\d+)[×x*](\d+|max)/i);
-  if(!m){return [{w:'',r:scheme,done:false,plan:true}];}
-  var sets=parseInt(m[1],10)||1;
-  var reps=m[2];
-  var arr=[]; for(var i=0;i<sets;i++){arr.push({w:'',r:(/max/i.test(reps)?'max':parseInt(reps,10)),done:false,plan:true});}
+  var sets, reps;
+  var mOuter=s.match(/^(\d+)[×x*]\((.+)\)$/i); // формат N×(...) напр 4×(max×3)
+  if(mOuter){
+    sets=parseInt(mOuter[1],10)||1;
+    var innerTok=mOuter[2].match(/(max|\d+)/i); // первый токен внутри скобок = повторы
+    reps=innerTok?innerTok[1]:'max';
+  } else {
+    var inner=s.match(/\(([^)]+)\)/); // кластер в скобках, напр (4×3)
+    var core=inner?inner[1]:s;
+    var m=core.match(/(\d+)[×x*](\d+|max)/i);
+    if(!m){return [{w:'',r:scheme,done:false,plan:true}];}
+    sets=parseInt(m[1],10)||1; reps=m[2];
+  }
+  var r=(/max/i.test(reps))?'max':(parseInt(reps,10)||'');
+  var arr=[]; for(var i=0;i<sets;i++){arr.push({w:'',r:r,done:false,plan:true});}
   return arr;
 }
 function makeProg2Exercises(block,weekIdx){
