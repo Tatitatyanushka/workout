@@ -128,6 +128,8 @@
   .setrow .best{font-size:11px;font-weight:600;color:var(--accent-deep);background:var(--accent);padding:4px 8px;border-radius:9px;}
   .setrow .del{border:none;background:none;color:var(--muted);cursor:pointer;padding:4px;}
   .setrow .del svg{width:16px;height:16px;}
+  .setrow.plan{border-style:dashed;border-color:var(--line);}
+  .setrow.plan:active{background:var(--accent-soft);}
   .setrow.editing{gap:8px;}
   .setrow .setedit{width:60px;border:1px solid var(--ink);background:#fff;border-radius:12px;padding:10px 4px;font-family:'Onest';font-size:15px;font-weight:600;text-align:center;outline:none;color:var(--ink);}
   .setrow .savesm{margin-left:auto;border:none;background:var(--accent);color:var(--accent-deep);border-radius:11px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
@@ -863,9 +865,10 @@ function viewExercise(){
     var isBest=best&&s.w===best.w&&s.r===best.r;
     var noW=(s.w===''||s.w===null||s.w===undefined);
     if(noW){
-      return '<div class="setrow plan'+(s.done?' done':'')+'"><div class="check'+(s.done?' on':'')+'" onclick="toggleSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.check+'</div><div class="idx">'+(i+1)+'</div>'
-        +'<input class="setw" type="number" inputmode="decimal" placeholder="кг" onchange="setPlanWeight(\''+w.id+'\',\''+e.id+'\','+i+',this.value)"><span class="x">кг ×</span><span class="r">'+s.r+'</span>'
-        +'<button class="del" onclick="delSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.trash+'</button></div>';
+      return '<div class="setrow plan'+(s.done?' done':'')+'" onclick="editSet('+i+')" style="cursor:pointer"><div class="check'+(s.done?' on':'')+'" onclick="event.stopPropagation();toggleSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.check+'</div><div class="idx">'+(i+1)+'</div>'
+        +'<div class="vals"><span class="w" style="color:var(--muted)">—</span><span class="x">кг ×</span><span class="r">'+s.r+'</span></div>'
+        +'<span style="font-size:11px;font-weight:600;color:var(--muted);background:var(--paper);padding:4px 8px;border-radius:8px;flex-shrink:0">вписать</span>'
+        +'<button class="del" onclick="event.stopPropagation();delSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.trash+'</button></div>';
     }
     return '<div class="setrow'+(s.done?' done':'')+'"><div class="check'+(s.done?' on':'')+'" onclick="toggleSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.check+'</div><div class="idx">'+(i+1)+'</div><div class="vals"><span class="w">'+s.w+'</span><span class="x">кг ×</span><span class="r">'+s.r+'</span></div>'+(isBest?'<span class="best">рекорд</span>':'')
       +'<button class="del" onclick="editSet('+i+')">'+I.pencil+'</button><button class="del" onclick="delSet(\''+w.id+'\',\''+e.id+'\','+i+')">'+I.trash+'</button></div>';
